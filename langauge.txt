@@ -1,0 +1,3 @@
+https://github.com/i18nexus/next-i18n-router
+https://next-intl-docs.vercel.app/
+https://next-intl-docs.vercel.app/docs/getting-started/app-router/with-i18n-routing

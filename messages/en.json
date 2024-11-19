@@ -1,0 +1,81 @@
+{
+    "Header": {
+        "menu": "Menu",
+        "about": "About",
+        "profile": "Profile",
+        "profile_link": {},
+        "cart": "Cart",
+        "wish": "Wish",
+        "signin": "Sign In",
+        "signout": "Sign Out",
+        "more": "More"
+    },
+    "Home": {
+        "slogan": "Relax and Refresh",
+        "slogan_2": "Sip Serenity at Our Tea and Coffee Haven",
+        "links": {
+            "steps": "How it works?",
+            "about": "About us",
+            "orders": "Order now"
+        },
+        "staff": "Staff Only",
+        "steps": {
+            "title": "How it works?",
+            "first": {
+                "title": "Sign in or sign up to become a member",
+                "desc": "Access the platform by logging in or creating a new account to start using the service."
+            },
+            "second": {
+                "title": "Click 'Select Item' to customize your meal",
+                "desc": "Choose from the menu and personalize your meal according to your preferences and dietary needs."
+            },
+            "third": {
+                "title": "Click 'Submit Order' and wait for your food to arrive",
+                "desc": "Complete the ordering process and await your meal delivery to the specified address."
+            }
+        }
+    },
+    "Sign": {
+        "signin": "Sign In",
+        "signup": "Sign Up",
+        "or": "or",
+        "form": {
+            "name": "Name",
+            "email": "Email",
+            "password": "Password",
+            "phone": "Phone"
+        },
+        "button": {
+            "signup": "Sign Up",
+            "signin": "Sign In"
+        }
+    },
+    "About":{
+        "title": "About Us",
+        "intro": "Welcome to The Cafe, your ultimate relaxation destination in the heart of the city. Our charming tea and coffee shop offers a tranquil haven where you can unwind and savor exceptional beverages. Whether you’re seeking the perfect espresso or a soothing herbal tea, our carefully curated menu has something for everyone. With a cozy, inviting atmosphere, comfortable seating, free Wi-Fi, and delicious pastries, The Cafe is ideal for catching up with friends, reading a book, or enjoying a peaceful moment alone. Experience the serenity and excellent drinks that await you at The Cafe.",
+        "address": "Address: 10th Floor, No. 100, Zhongxiao East Road, Section 4, Da’an District, Taipei City 106, Taiwan",
+        "tel": "Phone: +886-2-1234-5678",
+        "comment-title": "We love to here from you...",
+        "form": {
+            "name": "Name",
+            "email": "Email",
+            "comment": "Comment",
+            "comment-placeholder": "Enter your comment here"
+        }
+    },
+    "Menu": {
+        "title": "Menu",
+        "search-placeholder": "Enter product name",
+        "button":{
+            "add-cart": "Add to Cart",
+            "clear": "Clear All",
+            "cancel": "Cancel"
+        },
+        "custom": {
+            "title": "Custom Your Drinks",
+            "size-title": "Size Options",
+            "ice-title": "Ice Options",
+            "sugar-title": "Sigar Options"
+        }
+    }
+}

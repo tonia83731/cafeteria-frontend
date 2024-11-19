@@ -1,0 +1,231 @@
+"use client";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+// import { logo, navLink } from "@/data/front-header";
+
+import { IoIosMore } from "react-icons/io";
+import { RxCross2 } from "react-icons/rx";
+
+import { PiCoffeeBeanFill } from "react-icons/pi";
+import { MdRestaurantMenu } from "react-icons/md";
+import { AiOutlineInfo } from "react-icons/ai";
+import { TiUser } from "react-icons/ti";
+import { FaCartShopping } from "react-icons/fa6";
+import { FaHeart } from "react-icons/fa6";
+import { FaSignInAlt } from "react-icons/fa";
+import { FaSignOutAlt } from "react-icons/fa";
+
+export const logoLink = (locale: string) => {
+  return {
+    title: "THE CAFE",
+    href: `/${locale}`,
+    icon: <PiCoffeeBeanFill />,
+  };
+};
+
+export const navLink = (
+  isAuth: boolean,
+  t: (key: string) => string,
+  locale: string,
+  slug: string
+) => {
+  return [
+    {
+      title: t("menu"),
+      href: `/${locale}/menu`,
+      icon: <MdRestaurantMenu />,
+      position: 1,
+      isHidden: false,
+    },
+    {
+      title: t("about"),
+      href: `/${locale}/about`,
+      icon: <AiOutlineInfo />,
+      position: 1,
+      isHidden: false,
+    },
+    {
+      title: t("profile"),
+      href: `/${locale}/${slug}/profile/settings`,
+      icon: <TiUser />,
+      position: 1,
+      isHidden: !isAuth,
+    },
+    {
+      title: t("cart"),
+      href: `/${locale}/${slug}/cart`,
+      icon: <FaCartShopping />,
+      position: 2,
+      isHidden: !isAuth,
+    },
+    {
+      title: t("wish"),
+      href: `/${locale}/${slug}/wish`,
+      icon: <FaHeart />,
+      position: 2,
+      isHidden: !isAuth,
+    },
+    {
+      title: isAuth ? t("signout") : t("signin"),
+      href: isAuth ? "#" : `${locale}/auth/signin`,
+      icon: isAuth ? <FaSignOutAlt /> : <FaSignInAlt />,
+      position: 2,
+      isHidden: false,
+    },
+  ];
+};
+
+const TopBar = ({ locale }: { locale: string }) => {
+  const t = useTranslations("Header");
+  const pathname = usePathname();
+  const slug = "123";
+  const [isChecked, setIsChecked] = useState(false);
+  const isAuth = false;
+  const logo = logoLink(locale);
+  const navbar = navLink(isAuth, t, locale, slug);
+  console.log(locale);
+  const more = {
+    title: t("more"),
+    href: "#",
+    icon: isChecked ? <RxCross2 /> : <IoIosMore />,
+  };
+
+  const is_active_link = (href: string) =>
+    pathname === href || pathname.includes(href);
+  return (
+    <header className="w-full h-full relative">
+      <nav className="fixed top-0 left-0 right-0 z-[90] w-full h-[75px] leading-[75px] bg-ivory text-natural font-italiana text-xl">
+        <div className="px-4 h-full mx-auto flex justify-between items-center">
+          <Link
+            href={logo.href}
+            className="text-2xl sm:text-3xl flex items-center gap-1.5"
+          >
+            <div className="">{logo.icon}</div>
+            <div className="">{logo.title}</div>
+          </Link>
+          <input
+            type="checkbox"
+            className="hidden"
+            id="more-nav"
+            onChange={(e) => {
+              // console.log(e.target.checked);
+              setIsChecked(e.target.checked);
+            }}
+          />
+          <div className="flex gap-2">
+            <label
+              title={more.title}
+              htmlFor="more-nav"
+              className="bg-natural text-ivory w-6 h-6 rounded-full flex justify-center items-center cursor-pointer"
+            >
+              {more.icon}
+            </label>
+            <div>
+              {isAuth ? (
+                <button
+                  title="SignOut"
+                  className="bg-natural text-ivory w-6 h-6 rounded-full flex justify-center items-center"
+                >
+                  <FaSignOutAlt />
+                </button>
+              ) : (
+                <Link
+                  title="SignIn"
+                  href="/auth/signin"
+                  className="bg-natural text-ivory w-6 h-6 rounded-full flex justify-center items-center text-base"
+                >
+                  <FaSignInAlt />
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div
+        className={`fixed top-0 ${
+          isChecked ? "left-0" : "-left-full"
+        } z-[100] w-1/2 min-w-[194px] h-screen flex flex-col gap-4 bg-ivory text-natural font-italiana text-xl shadow-md`}
+      >
+        <div className="w-full h-[75px] leading-[75px]">
+          <Link
+            href={logo.href}
+            className="h-full px-4 text-2xl sm:text-3xl flex items-center gap-1.5"
+          >
+            <div className="bg-natural text-ivory w-6 h-6 rounded-full flex justify-center items-center text-lg">
+              {logo.icon}
+            </div>
+            <div className="">{logo.title}</div>
+          </Link>
+        </div>
+        <div className="w-full h-full flex flex-col justify-between">
+          <div className="flex flex-col">
+            {navbar.map((nav, index) => {
+              if (nav.position === 2 || nav.isHidden) return;
+              return (
+                <Link
+                  href={nav.href}
+                  key={`nav-${index}`}
+                  className={`flex items-center gap-2 px-4 py-2 ${
+                    is_active_link(nav.href) && "bg-natural"
+                  }`}
+                >
+                  <div
+                    className={`${
+                      is_active_link(nav.href)
+                        ? "bg-ivory text-natural"
+                        : "bg-natural text-ivory"
+                    } w-6 h-6 rounded-full flex justify-center items-center text-lg`}
+                  >
+                    {nav.icon}
+                  </div>
+                  <div
+                    className={
+                      is_active_link(nav.href) ? "text-ivory" : "text-natural"
+                    }
+                  >
+                    {nav.title}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="flex flex-col">
+            {navbar.map((nav, index) => {
+              if (nav.position === 1 || nav.isHidden) return;
+              return (
+                <Link
+                  href={nav.href}
+                  key={`nav-${index}`}
+                  className={`flex items-center gap-2 px-4 py-2 ${
+                    is_active_link(nav.href) && "bg-natural"
+                  }`}
+                >
+                  <div
+                    className={`${
+                      is_active_link(nav.href)
+                        ? "bg-ivory text-natural"
+                        : "bg-natural text-ivory"
+                    } w-6 h-6 rounded-full flex justify-center items-center text-lg`}
+                  >
+                    {nav.icon}
+                  </div>
+                  <div
+                    className={
+                      is_active_link(nav.href) ? "text-ivory" : "text-natural"
+                    }
+                  >
+                    {nav.title}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default TopBar;
