@@ -1,8 +1,10 @@
 "use client";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { getCookie, deleteCookie } from "cookies-next";
+// import { useUserStore } from "@/store/userStore";
 // import { logo, navLink } from "@/data/front-header";
 
 import { IoIosMore } from "react-icons/io";
@@ -80,12 +82,16 @@ export const navLink = (
 const TopBar = ({ locale }: { locale: string }) => {
   const t = useTranslations("Header");
   const pathname = usePathname();
+  const router = useRouter();
+  const authToken = getCookie("authToken");
+  const isAuth = !!authToken;
+
   const slug = "123";
+
   const [isChecked, setIsChecked] = useState(false);
-  const isAuth = false;
   const logo = logoLink(locale);
   const navbar = navLink(isAuth, t, locale, slug);
-  console.log(locale);
+  // console.log(locale);
   const more = {
     title: t("more"),
     href: "#",
@@ -94,6 +100,11 @@ const TopBar = ({ locale }: { locale: string }) => {
 
   const is_active_link = (href: string) =>
     pathname === href || pathname.includes(href);
+
+  const handleSignout = () => {
+    deleteCookie("authToken");
+    router.push(`/${locale}`);
+  };
   return (
     <header className="w-full h-full relative">
       <nav className="fixed top-0 left-0 right-0 z-[90] w-full h-[75px] leading-[75px] bg-ivory text-natural font-italiana text-xl">
@@ -125,6 +136,7 @@ const TopBar = ({ locale }: { locale: string }) => {
             <div>
               {isAuth ? (
                 <button
+                  onClick={handleSignout}
                   title="SignOut"
                   className="bg-natural text-ivory w-6 h-6 rounded-full flex justify-center items-center"
                 >
@@ -133,7 +145,7 @@ const TopBar = ({ locale }: { locale: string }) => {
               ) : (
                 <Link
                   title="SignIn"
-                  href="/auth/signin"
+                  href={`${locale}/auth/signin`}
                   className="bg-natural text-ivory w-6 h-6 rounded-full flex justify-center items-center text-base"
                 >
                   <FaSignInAlt />
@@ -194,6 +206,24 @@ const TopBar = ({ locale }: { locale: string }) => {
           <div className="flex flex-col">
             {navbar.map((nav, index) => {
               if (nav.position === 1 || nav.isHidden) return;
+              if (nav.href === "#") {
+                return (
+                  <button
+                    onClick={handleSignout}
+                    className="flex items-center gap-2 px-4 py-2"
+                    key={`nav-${index}`}
+                  >
+                    <div
+                      className={`bg-natural text-ivory hover:bg-ivory hover:text-natural w-6 h-6 rounded-full flex justify-center items-center text-lg`}
+                    >
+                      {nav.icon}
+                    </div>
+                    <div className="text-natural hover:text-ivory">
+                      {nav.title}
+                    </div>
+                  </button>
+                );
+              }
               return (
                 <Link
                   href={nav.href}
