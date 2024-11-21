@@ -6,8 +6,10 @@ import Pagination from "@/components/common/Pagination";
 import { useTranslations } from "next-intl";
 import { category_dummy } from "@/dummy/category_dummy";
 import { product_dummy } from "@/dummy/product_dummy";
+import { useLocale } from "next-intl";
 
-const MenuPage = ({ params: { locale } }: { params: { locale: string } }) => {
+const MenuPage = () => {
+  const locale = useLocale();
   const t = useTranslations("Menu");
   return (
     <FrontTitleLayout title={t("title")}>

@@ -2,33 +2,36 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import StepSection from "@/components/home/StepSection";
 import FrontHeader from "@/components/common/header/Header";
+import LocaleSwitcher from "@/components/common/LocaleSwitcher";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-export default function Home({
-  params: { locale },
-}: {
-  params: { locale: string };
-}) {
+
+export default function Home() {
   const t = useTranslations("Home");
 
   const home_link = [
     {
-      href: `${locale}/#steps`,
+      href: `/#steps`,
       title: `${t("links.steps")}`,
     },
     {
-      href: `${locale}/about`,
+      href: `/about`,
       title: `${t("links.about")}`,
     },
     {
-      href: `${locale}/menu`,
+      href: `/menu`,
       title: `${t("links.orders")}`,
     },
   ];
 
   return (
     <>
-      <FrontHeader locale={locale} />
-      <div className="relative bg-home-mobile sm:bg-home-desktop bg-center bg-no-repeat w-full h-screen pt-[75px] md:pt-0 md:w-[calc(100%-60px)] md:ml-[60px]">
+      <FrontHeader />
+      <div className="relative bg-home-mobile sm:bg-home-desktop bg-cover bg-center bg-no-repeat w-full h-screen pt-[75px] md:pt-0 md:w-[calc(100%-60px)] md:ml-[60px]">
+        <div className="pt-4 px-4 w-full flex justify-end">
+          <div className="w-1/3 max-w-[120px]">
+            <LocaleSwitcher direction="down" />
+          </div>
+        </div>
         <div className="w-full h-full flex flex-col gap-4 md:gap-8 justify-center items-center">
           <div className="">
             <h1 className="text-6xl md:text-8xl text-ivory font-italiana text-center">

@@ -2,7 +2,7 @@ import Link from "next/link";
 import SignUpForm from "@/components/users/SignupForm";
 import { useTranslations } from "next-intl";
 
-const SignUpPage = ({ params: { locale } }: { params: { locale: string } }) => {
+const SignUpPage = () => {
   const t = useTranslations("Sign");
   return (
     <div className="flex flex-col gap-6">
@@ -13,10 +13,7 @@ const SignUpPage = ({ params: { locale } }: { params: { locale: string } }) => {
         <div className="inline text-natural text-sm">
           {t("or")}{" "}
           <span>
-            <Link
-              href={`/${locale}/auth/signin`}
-              className="underline hover:font-medium"
-            >
+            <Link href={`/auth/signin`} className="underline hover:font-medium">
               {t("signin")}
             </Link>
           </span>

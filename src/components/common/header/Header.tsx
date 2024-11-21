@@ -1,13 +1,13 @@
 import TopBar from "./TopBar";
 import SideBar from "./SideBar";
-const FrontHeader = ({ locale }: { locale: string }) => {
+const FrontHeader = () => {
   return (
     <header>
       <div className="md:hidden">
-        <TopBar locale={locale} />
+        <TopBar />
       </div>
       <div className="hidden md:block">
-        <SideBar locale={locale} />
+        <SideBar />
       </div>
     </header>
   );

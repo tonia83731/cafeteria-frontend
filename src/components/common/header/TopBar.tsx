@@ -19,10 +19,10 @@ import { FaHeart } from "react-icons/fa6";
 import { FaSignInAlt } from "react-icons/fa";
 import { FaSignOutAlt } from "react-icons/fa";
 
-export const logoLink = (locale: string) => {
+export const logoLink = () => {
   return {
     title: "THE CAFE",
-    href: `/${locale}`,
+    href: `/`,
     icon: <PiCoffeeBeanFill />,
   };
 };
@@ -30,48 +30,47 @@ export const logoLink = (locale: string) => {
 export const navLink = (
   isAuth: boolean,
   t: (key: string) => string,
-  locale: string,
   slug: string
 ) => {
   return [
     {
       title: t("menu"),
-      href: `/${locale}/menu`,
+      href: `/menu`,
       icon: <MdRestaurantMenu />,
       position: 1,
       isHidden: false,
     },
     {
       title: t("about"),
-      href: `/${locale}/about`,
+      href: `/about`,
       icon: <AiOutlineInfo />,
       position: 1,
       isHidden: false,
     },
     {
       title: t("profile"),
-      href: `/${locale}/${slug}/profile/settings`,
+      href: `/${slug}/profile`,
       icon: <TiUser />,
       position: 1,
       isHidden: !isAuth,
     },
     {
       title: t("cart"),
-      href: `/${locale}/${slug}/cart`,
+      href: `/${slug}/cart`,
       icon: <FaCartShopping />,
       position: 2,
       isHidden: !isAuth,
     },
     {
       title: t("wish"),
-      href: `/${locale}/${slug}/wish`,
+      href: `/${slug}/wish`,
       icon: <FaHeart />,
       position: 2,
       isHidden: !isAuth,
     },
     {
       title: isAuth ? t("signout") : t("signin"),
-      href: isAuth ? "#" : `${locale}/auth/signin`,
+      href: isAuth ? "#" : `/auth/signin`,
       icon: isAuth ? <FaSignOutAlt /> : <FaSignInAlt />,
       position: 2,
       isHidden: false,
@@ -79,7 +78,11 @@ export const navLink = (
   ];
 };
 
-const TopBar = ({ locale }: { locale: string }) => {
+export const isLinkActive = (pathname: string, href: string) => {
+  return pathname === href;
+};
+
+const TopBar = () => {
   const t = useTranslations("Header");
   const pathname = usePathname();
   const router = useRouter();
@@ -89,21 +92,18 @@ const TopBar = ({ locale }: { locale: string }) => {
   const slug = "123";
 
   const [isChecked, setIsChecked] = useState(false);
-  const logo = logoLink(locale);
-  const navbar = navLink(isAuth, t, locale, slug);
-  // console.log(locale);
+  const logo = logoLink();
+  const navbar = navLink(isAuth, t, slug);
+
   const more = {
     title: t("more"),
     href: "#",
     icon: isChecked ? <RxCross2 /> : <IoIosMore />,
   };
 
-  const is_active_link = (href: string) =>
-    pathname === href || pathname.includes(href);
-
   const handleSignout = () => {
     deleteCookie("authToken");
-    router.push(`/${locale}`);
+    router.push(`/`);
   };
   return (
     <header className="w-full h-full relative">
@@ -121,7 +121,6 @@ const TopBar = ({ locale }: { locale: string }) => {
             className="hidden"
             id="more-nav"
             onChange={(e) => {
-              // console.log(e.target.checked);
               setIsChecked(e.target.checked);
             }}
           />
@@ -145,7 +144,7 @@ const TopBar = ({ locale }: { locale: string }) => {
               ) : (
                 <Link
                   title="SignIn"
-                  href={`${locale}/auth/signin`}
+                  href={`/auth/signin`}
                   className="bg-natural text-ivory w-6 h-6 rounded-full flex justify-center items-center text-base"
                 >
                   <FaSignInAlt />
@@ -177,15 +176,19 @@ const TopBar = ({ locale }: { locale: string }) => {
               if (nav.position === 2 || nav.isHidden) return;
               return (
                 <Link
-                  href={nav.href}
+                  href={
+                    nav.href.includes("profile")
+                      ? `${nav.href}/settings`
+                      : `${nav.href}`
+                  }
                   key={`nav-${index}`}
                   className={`flex items-center gap-2 px-4 py-2 ${
-                    is_active_link(nav.href) && "bg-natural"
+                    isLinkActive(pathname, nav.href) && "bg-natural"
                   }`}
                 >
                   <div
                     className={`${
-                      is_active_link(nav.href)
+                      isLinkActive(pathname, nav.href)
                         ? "bg-ivory text-natural"
                         : "bg-natural text-ivory"
                     } w-6 h-6 rounded-full flex justify-center items-center text-lg`}
@@ -194,7 +197,9 @@ const TopBar = ({ locale }: { locale: string }) => {
                   </div>
                   <div
                     className={
-                      is_active_link(nav.href) ? "text-ivory" : "text-natural"
+                      isLinkActive(pathname, nav.href)
+                        ? "text-ivory"
+                        : "text-natural"
                     }
                   >
                     {nav.title}
@@ -229,12 +234,12 @@ const TopBar = ({ locale }: { locale: string }) => {
                   href={nav.href}
                   key={`nav-${index}`}
                   className={`flex items-center gap-2 px-4 py-2 ${
-                    is_active_link(nav.href) && "bg-natural"
+                    isLinkActive(pathname, nav.href) && "bg-natural"
                   }`}
                 >
                   <div
                     className={`${
-                      is_active_link(nav.href)
+                      isLinkActive(pathname, nav.href)
                         ? "bg-ivory text-natural"
                         : "bg-natural text-ivory"
                     } w-6 h-6 rounded-full flex justify-center items-center text-lg`}
@@ -243,7 +248,9 @@ const TopBar = ({ locale }: { locale: string }) => {
                   </div>
                   <div
                     className={
-                      is_active_link(nav.href) ? "text-ivory" : "text-natural"
+                      isLinkActive(pathname, nav.href)
+                        ? "text-ivory"
+                        : "text-natural"
                     }
                   >
                     {nav.title}

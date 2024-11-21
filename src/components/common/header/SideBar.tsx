@@ -3,30 +3,27 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { getCookie, deleteCookie } from "cookies-next";
-import { logoLink, navLink } from "./TopBar";
-const SideBar = ({ locale }: { locale: string }) => {
+import { logoLink, navLink, isLinkActive } from "./TopBar";
+// import LocaleSwitcher from "../LocaleSwitcher";
+const SideBar = () => {
   const t = useTranslations("Header");
   const authToken = getCookie("authToken");
   const isAuth = !!authToken;
   const pathname = usePathname();
+  console.log(pathname);
   const router = useRouter();
   const slug = "123";
-  const logo = logoLink(locale);
-  const navbar = navLink(isAuth, t, locale, slug);
-  const is_active_link = (href: string) => {
-    const link = href.split("/");
-    // console.log(link);
-    return pathname === href;
-  };
+  const logo = logoLink();
+  const navbar = navLink(isAuth, t, slug);
 
   const handleSignout = () => {
     deleteCookie("authToken");
-    router.push(`/${locale}`);
+    router.push(`/`);
   };
   return (
     <div
       className={`fixed top-0 left-0 z-[100] md:w-1/2 md:max-w-[60px] ${
-        pathname !== `/${locale}` && "lg:w-1/3 lg:max-w-[240px]"
+        pathname !== `/` && "lg:w-1/3 lg:max-w-[240px]"
       } h-screen bg-ivory text-natural font-italiana text-xl`}
     >
       <nav className="h-screen">
@@ -37,26 +34,30 @@ const SideBar = ({ locale }: { locale: string }) => {
           <div className="text-natural flex justify-center items-center text-3xl">
             {logo.icon}
           </div>
-          <div className={`hidden ${pathname !== `/${locale}` && "lg:block"}`}>
+          <div className={`hidden ${pathname !== `/` && "lg:block"}`}>
             {logo.title}
           </div>
         </Link>
-        <div className="w-full h-[calc(100vh-75px)] flex flex-col justify-between">
+        <div className="w-full h-[calc(100vh-100px)] flex flex-col justify-between">
           <div className="flex flex-col">
             {navbar.map((nav, index) => {
               if (nav.position === 2 || nav.isHidden) return;
               return (
                 <Link
-                  href={nav.href}
+                  href={
+                    nav.href.includes("profile")
+                      ? `${nav.href}/settings`
+                      : `${nav.href}`
+                  }
                   title={nav.title}
                   key={`nav-${index}`}
                   className={`flex items-center gap-2 px-4 py-2 ${
-                    is_active_link(nav.href) && "bg-natural"
+                    isLinkActive(pathname, nav.href) && "bg-natural"
                   }`}
                 >
                   <div
                     className={`${
-                      is_active_link(nav.href)
+                      isLinkActive(pathname, nav.href)
                         ? "bg-ivory text-natural"
                         : "bg-natural text-ivory"
                     } w-6 h-6 rounded-full flex justify-center items-center text-lg`}
@@ -64,10 +65,10 @@ const SideBar = ({ locale }: { locale: string }) => {
                     {nav.icon}
                   </div>
                   <div
-                    className={`md:hidden ${
-                      pathname !== `/${locale}` && "lg:block"
-                    } ${
-                      is_active_link(nav.href) ? "text-ivory" : "text-natural"
+                    className={`md:hidden ${pathname !== `/` && "lg:block"} ${
+                      isLinkActive(pathname, nav.href)
+                        ? "text-ivory"
+                        : "text-natural"
                     }`}
                   >
                     {nav.title}
@@ -77,6 +78,7 @@ const SideBar = ({ locale }: { locale: string }) => {
             })}
           </div>
           <div className="flex flex-col">
+            {/* <LocaleSwitcher /> */}
             {navbar.map((nav, index) => {
               if (nav.position === 1 || nav.isHidden) return;
               if (nav.href === "#") {
@@ -93,7 +95,7 @@ const SideBar = ({ locale }: { locale: string }) => {
                     </div>
                     <div
                       className={`md:hidden ${
-                        pathname !== `/${locale}` && "lg:block"
+                        pathname !== `/` && "lg:block"
                       } text-natural hover:text-ivory`}
                     >
                       {nav.title}
@@ -107,12 +109,12 @@ const SideBar = ({ locale }: { locale: string }) => {
                   title={nav.title}
                   key={`nav-${index}`}
                   className={`flex items-center gap-2 px-4 py-2 ${
-                    is_active_link(nav.href) && "bg-natural"
+                    isLinkActive(pathname, nav.href) && "bg-natural"
                   }`}
                 >
                   <div
                     className={`${
-                      is_active_link(nav.href)
+                      isLinkActive(pathname, nav.href)
                         ? "bg-ivory text-natural"
                         : "bg-natural text-ivory"
                     } w-6 h-6 rounded-full flex justify-center items-center text-lg`}
@@ -120,10 +122,10 @@ const SideBar = ({ locale }: { locale: string }) => {
                     {nav.icon}
                   </div>
                   <div
-                    className={`md:hidden ${
-                      pathname !== `/${locale}` && "lg:block"
-                    } ${
-                      is_active_link(nav.href) ? "text-ivory" : "text-natural"
+                    className={`md:hidden ${pathname !== `/` && "lg:block"} ${
+                      isLinkActive(pathname, nav.href)
+                        ? "text-ivory"
+                        : "text-natural"
                     }`}
                   >
                     {nav.title}
@@ -132,37 +134,6 @@ const SideBar = ({ locale }: { locale: string }) => {
               );
             })}
           </div>
-          {/* <div className="flex flex-col">
-            {navbar.map((nav, index) => {
-              if (nav.position === 1) return;
-              return (
-                <Link
-                  href={nav.href}
-                  key={`nav-${index}`}
-                  className={`flex items-center gap-2 px-4 py-2 ${
-                    is_active_link(nav.href) && "bg-natural"
-                  }`}
-                >
-                  <div
-                    className={`${
-                      is_active_link(nav.href)
-                        ? "bg-ivory text-natural"
-                        : "bg-natural text-ivory"
-                    } w-6 h-6 rounded-full flex justify-center items-center text-lg`}
-                  >
-                    {nav.icon}
-                  </div>
-                  <div
-                    className={`md:hidden ${pathname !== "/" && "lg:block"} ${
-                      is_active_link(nav.href) ? "text-ivory" : "text-natural"
-                    }`}
-                  >
-                    {nav.title}
-                  </div>
-                </Link>
-              );
-            })}
-          </div> */}
         </div>
       </nav>
     </div>

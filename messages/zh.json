@@ -48,6 +48,19 @@
         "button": {
             "signup": "註冊",
             "signin": "登入"
+        },
+        "message": {
+            "signup-success": "註冊成功",
+            "signup-false": "註冊失敗",
+            "signin-success": "登入成功",
+            "signin-false": "登入失敗",
+
+            "error": {
+                "blank": "輸入不能為空",
+                "invalid-name": "名字需介於3-50字之間",
+                "invalid-email": "電子郵件格式無效",
+                "invalid-password": "密碼最少須8碼，須包含大寫字母*1、小寫字母*1、數字*1、符號*1"
+            }
         }
     },
     "About":{
@@ -78,5 +91,8 @@
             "ice-title": "冰塊選擇",
             "sugar-title": "甜度選擇"
         }
+    },
+    "Profile": {
+        "title": "用戶資料"
     }
 }

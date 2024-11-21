@@ -1,29 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import createMiddleware from "next-intl/middleware";
-import { routing } from "./i18n/routing";
+
 const protectedRoutes = ["/profile", "/cart", "/wish"];
-const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
   const authToken = request.cookies.get("authToken");
   const { pathname } = request.nextUrl;
 
-  const pathParts = pathname.split("/").filter(Boolean);
-  const locale = pathParts[0];
-  // const slug = pathParts[1];
-  const route = pathParts[2];
-
-  const isProtected = protectedRoutes.includes(`/${route}`);
+  // Check if the current pathname is a protected route
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
 
   if (isProtected && !authToken) {
-    const loginUrl = new URL(`/${locale}/auth/signin`, request.url);
+    const loginUrl = new URL("/auth/signin", request.url); // Redirect to a fixed sign-in page
     return NextResponse.redirect(loginUrl);
   }
 
-  return intlMiddleware(request);
+  return NextResponse.next(); // Continue the request if no redirect is needed
 }
 
 export const config = {
-  // Match only internationalized pathnames
-  matcher: ["/", "/(zh|en)/:path*"],
+  matcher: ["/:path*"], // Match all paths
 };

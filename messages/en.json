@@ -48,6 +48,19 @@
         "button": {
             "signup": "Sign Up",
             "signin": "Sign In"
+        },
+        "message": {
+            "signup-success": "Registered success",
+            "signup-false": "Registered failed",
+            "signin-success": "Sign in success",
+            "signin-false": "Sign in failed",
+
+            "error": {
+                "blank": "Input cannot be blank",
+                "invalid-name": "Name should between 3-50 letters",
+                "invalid-email": "Invalid email",
+                "invalid-password": "Invalid password. Password should have minimum 8 letters, included uppercase*1, lowercase*1, number*1, symbol*1"
+            }
         }
     },
     "About":{
@@ -77,5 +90,8 @@
             "ice-title": "Ice Options",
             "sugar-title": "Sigar Options"
         }
+    },
+    "Profile": {
+        "title": "Profile"
     }
 }
