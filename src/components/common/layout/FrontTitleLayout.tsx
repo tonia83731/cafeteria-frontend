@@ -1,6 +1,5 @@
 "use client";
 import { ReactNode } from "react";
-import { useParams } from "next/navigation";
 import FrontHeader from "../header/Header";
 import LocaleSwitcher from "../LocaleSwitcher";
 

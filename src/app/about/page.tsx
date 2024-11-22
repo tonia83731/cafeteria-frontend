@@ -4,7 +4,7 @@ import CommentForm from "@/components/about/CommentForm";
 import About_Mobile from "@/public/images/about_mobile.png";
 import About_Desktop from "@/public/images/about_desktop.png";
 import { useTranslations } from "next-intl";
-import { getTop5Comments } from "@/api/comment";
+// import { getTop5Comments } from "@/api/comment";
 const AboutPage = () => {
   const t = useTranslations("About");
   // const comments = await getTop5Comments();
