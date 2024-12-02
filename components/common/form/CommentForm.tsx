@@ -1,7 +1,5 @@
-"use client";
-import { defaultfetch } from "@/lib/fetch";
+import { clientFetch } from "@/lib/fetch";
 import { useTranslations } from "next-intl";
-// import { postComment, CommentBody } from "@/api/comment";
 import { FormEvent, useRef, useState } from "react";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -50,25 +48,20 @@ const CommentForm = () => {
       body.comment = comment;
     }
 
-    console.log(body);
-
     try {
-      // const response = await fetch(`/api/comments`, {
-      //   method: "POST",
-      //   body,
-      // });
-      // console.log(response);
+      const response = await clientFetch(`/comments`, {
+        method: "POST",
+        body,
+      });
+      if (response.success) {
+        toast.success(response.message);
+        initializedInput();
+      } else {
+        toast.error("Comment created failed");
+      }
     } catch (error) {
       console.log(error);
     }
-
-    // const response = await postComment(body);
-
-    // if (response.success) {
-    //   toast.success(response.message);
-    // } else {
-    //   toast.error("Comment created failed");
-    // }
   };
 
   return (

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { InputProps } from "./DefaultInput";
 import { MdLockPerson } from "react-icons/md";

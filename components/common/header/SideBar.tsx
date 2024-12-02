@@ -11,7 +11,7 @@ const SideBar = () => {
   const authToken = getCookie("authToken");
   const isAuth = !!authToken;
   const pathname = usePathname();
-  console.log(pathname);
+  // console.log(pathname);
   const router = useRouter();
   const slug = "123";
   const logo = logoLink();

@@ -1,25 +1,47 @@
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import { useTranslations } from "next-intl";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 import validator from "validator";
 import AuthLayout from "@/components/common/layout/AuthLayout";
-import DefaultInput from "@/components/common/Input/DefaultInput";
-import DefaultPasswordInput from "@/components/common/Input/DefaultPasswordInput";
-import { MdOutlinePhoneAndroid } from "react-icons/md";
+import { MdLockPerson, MdOutlinePhoneAndroid } from "react-icons/md";
 import { TbMailFilled } from "react-icons/tb";
 import { TiUser } from "react-icons/ti";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { clientFetch } from "@/lib/fetch";
 
 const SignUpPage = () => {
   const t = useTranslations("Sign");
-  const nameRef = useRef<any>(null);
-  const emailRef = useRef<any>(null);
-  const passwordRef = useRef<any>(null);
-  const phoneRef = useRef<any>(null);
+  const router = useRouter();
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const phoneRef = useRef<HTMLInputElement | null>(null);
+  const [passwordShowed, setPasswordShowed] = useState(false);
   const [error, setError] = useState({
     isError: false,
     message: "",
   });
+
+  // const initializedInput = () => {
+  //   if (nameRef.current) {
+  //     nameRef.current.value = "";
+  //   }
+  //   if (emailRef.current) {
+  //     emailRef.current.value = "";
+  //   }
+  //   if (passwordRef.current) {
+  //     passwordRef.current.value = "";
+  //   }
+  //   if (phoneRef.current) {
+  //     phoneRef.current.value = "";
+  //   }
+  //   setError({
+  //     isError: false,
+  //     message: "",
+  //   });
+  // };
   const handleUserSignup = async (e: FormEvent) => {
     e.preventDefault();
     setError({
@@ -70,23 +92,32 @@ const SignUpPage = () => {
       });
       return;
     }
-    // try {
-    //   const response = await fetchRequest("/api/login", "POST", {
-    //     name,
-    //     email,
-    //     password,
-    //     phone,
-    //   });
-    //   if (response.success) {
-    //     toast.success(`${t("message.signup-success")}`);
-    //     router.push(`/${locale}/auth/signin`);
-    //   } else {
-    //     toast.error(`${t("message.signup-false")}`);
-    //   }
-    // } catch (error) {
-    //   toast.error(`${t("message.signup-false")}`);
-    //   console.log(error);
-    // }
+
+    const body = {
+      name,
+      email,
+      password,
+      phone,
+    };
+
+    console.log(body);
+    try {
+      const response = await clientFetch("/register", {
+        method: "POST",
+        body,
+      });
+
+      if (response.success) {
+        // toast.success(`${t("message.signup-success")}`);
+        // initializedInput();
+        router.push(`/auth/signin`);
+      } else {
+        toast.error(`${t("message.signup-false")}`);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(`${t("message.signup-false")}`);
+    }
   };
   return (
     <AuthLayout>
@@ -107,43 +138,87 @@ const SignUpPage = () => {
             </span>
           </div>
         </div>
-
-        {/* <SignUpForm /> */}
         <form className="flex flex-col gap-6" onSubmit={handleUserSignup}>
           <div className="flex flex-col gap-4">
-            <DefaultInput
-              id="name"
-              name="name"
-              label={t("form.name")}
-              icon={<TiUser />}
-              ref={nameRef}
-              placeholder="Coffee Maniac"
-            />
-            <DefaultInput
-              id="email"
-              name="email"
-              type="email"
-              label={t("form.email")}
-              icon={<TbMailFilled />}
-              ref={emailRef}
-              placeholder="coffee.M@example.com"
-            />
-            <DefaultPasswordInput
-              id="password"
-              name="password"
-              label={t("form.password")}
-              ref={passwordRef}
-              placeholder="********"
-            />
-            <DefaultInput
-              id="phone"
-              name="phone"
-              label={t("form.phone")}
-              type="tel"
-              icon={<MdOutlinePhoneAndroid />}
-              ref={phoneRef}
-              placeholder="0912345678"
-            />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="text-base md:text-lg">
+                {t("form.name")}
+              </label>
+              <div className="bg-ivory flex justify-between px-2 gap-2 text-fern w-full h-10 md:h-14 rounded-lg hover:border hover:border-fern focus-within:border focus-within:border-fern">
+                <span className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center">
+                  <TiUser />
+                </span>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  ref={nameRef}
+                  placeholder="Coffee Maniac"
+                  className="w-full h-10 md:h-14 text-fern text-base placeholder:text-natural placeholder:text-sm"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="text-base md:text-lg">
+                {t("form.email")}
+              </label>
+              <div className="bg-ivory flex justify-between px-2 gap-2 text-fern w-full h-10 md:h-14 rounded-lg hover:border hover:border-fern focus-within:border focus-within:border-fern">
+                <span className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center">
+                  <TbMailFilled />
+                </span>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  ref={emailRef}
+                  placeholder="coffee.M@example.com"
+                  className="w-full h-10 md:h-14 text-fern text-base placeholder:text-natural placeholder:text-sm"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="password" className="text-base md:text-lg">
+                {t("form.password")}
+              </label>
+              <div className="bg-ivory flex justify-between px-2 gap-2 text-fern w-full h-10 md:h-14 rounded-lg hover:border hover:border-fern focus-within:border focus-within:border-fern">
+                <span className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center">
+                  <MdLockPerson />
+                </span>
+                <input
+                  id="password"
+                  name="password"
+                  placeholder="********"
+                  type={passwordShowed ? "text" : "password"}
+                  className="w-full h-10 md:h-14 text-fern text-base placeholder:text-natural placeholder:text-sm"
+                  ref={passwordRef}
+                />
+                <button
+                  type="button"
+                  className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center"
+                  onClick={() => setPasswordShowed(!passwordShowed)}
+                >
+                  {passwordShowed ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="text-base md:text-lg">
+                {t("form.phone")}
+              </label>
+              <div className="bg-ivory flex justify-between px-2 gap-2 text-fern w-full h-10 md:h-14 rounded-lg hover:border hover:border-fern focus-within:border focus-within:border-fern">
+                <span className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center">
+                  <MdOutlinePhoneAndroid />
+                </span>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  ref={phoneRef}
+                  placeholder="0912345678"
+                  className="w-full h-10 md:h-14 text-fern text-base placeholder:text-natural placeholder:text-sm"
+                />
+              </div>
+            </div>
           </div>
           {error.isError && (
             <p className="text-red-500 text-sm">{error.isError}</p>

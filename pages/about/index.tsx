@@ -9,7 +9,7 @@ import About_Mobile from "@/public/images/about_mobile.png";
 import About_Desktop from "@/public/images/about_desktop.png";
 import { FaStar } from "react-icons/fa";
 import { Carousel } from "react-responsive-carousel";
-// import { getTop5Comments } from "@/api/comment";
+
 type CommentAPIData = {
   id: number;
   rate: number;
@@ -23,8 +23,7 @@ const AboutPage = ({
   comments,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const t = useTranslations("About");
-  // const comments = await getTop5Comments();
-  console.log(comments);
+
   return (
     <FrontTitleLayout title={t("title")}>
       <>
@@ -103,10 +102,8 @@ const AboutPage = ({
 export default AboutPage;
 
 export async function getStaticProps(context: any) {
-  // const api;
   try {
     const comments = await defaultfetch(`/api/comments/top5`);
-    // console.log(comments);
 
     return {
       props: {

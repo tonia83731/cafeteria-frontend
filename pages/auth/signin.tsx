@@ -1,20 +1,26 @@
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import { useTranslations } from "next-intl";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
+import dayjs from "dayjs";
+import { clientFetch } from "@/lib/fetch";
+import { setCookie } from "cookies-next";
 import AuthLayout from "@/components/common/layout/AuthLayout";
-import DefaultInput from "@/components/common/Input/DefaultInput";
-import DefaultPasswordInput from "@/components/common/Input/DefaultPasswordInput";
 import { TbMailFilled } from "react-icons/tb";
+import { MdLockPerson } from "react-icons/md";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 const SignInPage = () => {
   const t = useTranslations("Sign");
+  const router = useRouter();
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
   const [error, setError] = useState({
     isError: false,
     message: "",
   });
+  const [passwordShowed, setPasswordShowed] = useState(false);
 
   const handleUserSignin = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,12 +31,39 @@ const SignInPage = () => {
     const email = emailRef.current?.value;
     const password = passwordRef.current?.value;
 
+    // console.log(emailRef, passwordRef);
+
     if (!email || !password) {
       setError({
         isError: true,
         message: t("message.error.blank"),
       });
+      console.log(error);
       return;
+    }
+
+    const body = {
+      email,
+      password,
+    };
+    // console.log(body);
+
+    try {
+      const response = await clientFetch("/login", {
+        method: "POST",
+        body,
+      });
+      if (response.success) {
+        const { token } = response.data;
+        // console.log(token);
+        setCookie("authToken", token, {
+          expires: dayjs().add(3, "day").toDate(),
+        });
+        router.push(`/`);
+      }
+    } catch (error) {
+      toast.error(`${t("message.signin-false")}`);
+      console.log(error);
     }
 
     // try {
@@ -83,28 +116,54 @@ const SignInPage = () => {
           </div>
         </div>
 
-        {/* <SignInForm /> */}
         <form className="flex flex-col gap-6" onSubmit={handleUserSignin}>
           <div className="flex flex-col gap-4">
-            <DefaultInput
-              id="email"
-              name="email"
-              type="email"
-              label={t("form.email")}
-              icon={<TbMailFilled />}
-              placeholder="coffee.M@example.com"
-              ref={emailRef}
-            />
-            <DefaultPasswordInput
-              id="password"
-              name="password"
-              label={t("form.password")}
-              placeholder="********"
-              ref={passwordRef}
-            />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="text-base md:text-lg">
+                {t("form.email")}
+              </label>
+              <div className="bg-ivory flex justify-between px-2 gap-2 text-fern w-full h-10 md:h-14 rounded-lg hover:border hover:border-fern focus-within:border focus-within:border-fern">
+                <span className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center">
+                  <TbMailFilled />
+                </span>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  ref={emailRef}
+                  placeholder="coffee.M@example.com"
+                  className="w-full h-10 md:h-14 text-fern text-base placeholder:text-natural placeholder:text-sm"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="password" className="text-base md:text-lg">
+                {t("form.password")}
+              </label>
+              <div className="bg-ivory flex justify-between px-2 gap-2 text-fern w-full h-10 md:h-14 rounded-lg hover:border hover:border-fern focus-within:border focus-within:border-fern">
+                <span className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center">
+                  <MdLockPerson />
+                </span>
+                <input
+                  id="password"
+                  name="password"
+                  placeholder="********"
+                  type={passwordShowed ? "text" : "password"}
+                  className="w-full h-10 md:h-14 text-fern text-base placeholder:text-natural placeholder:text-sm"
+                  ref={passwordRef}
+                />
+                <button
+                  type="button"
+                  className="text-natural text-lg w-5 h-10 md:h-14 flex justify-center items-center"
+                  onClick={() => setPasswordShowed(!passwordShowed)}
+                >
+                  {passwordShowed ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                </button>
+              </div>
+            </div>
           </div>
           {error.isError && (
-            <p className="text-red-500 text-sm">{error.isError}</p>
+            <p className="text-red-500 text-sm">{error.message}</p>
           )}
           <div className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4">
             <button

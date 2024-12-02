@@ -1,5 +1,4 @@
-"use client";
-import { LegacyRef, ReactNode } from "react";
+import { MutableRefObject, ReactNode } from "react";
 export type InputProps = {
   id: string;
   name: string;
@@ -7,7 +6,7 @@ export type InputProps = {
   label: string;
   icon?: ReactNode;
   placeholder: string;
-  ref: LegacyRef<HTMLInputElement>;
+  ref?: MutableRefObject<any>;
 };
 
 const DefaultInput = ({
