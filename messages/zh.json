@@ -1,0 +1,99 @@
+{
+    "Header": {
+        "menu": "產品列表",
+        "about": "關於我們",
+        "profile": "用戶資訊",
+        "profile_link": {},
+        "cart": "購物車",
+        "wish": "我的最愛",
+        "signin": "登入",
+        "signout": "登出",
+        "more": "更多內容",
+        "curr_language": "語言:"
+    },
+    "Home": {
+        "slogan": "放鬆身心，煥然一新",
+        "slogan_2": "在我們的茶與咖啡天堂品味寧靜",
+        "links": {
+            "steps": "如何運作？",
+            "about": "關於我們",
+            "orders": "立即訂購"
+        },
+        "staff": "員工專用",
+        "steps": {
+            "title": "如何運作？",
+            "first": {
+                "title": "登入或註冊成為會員",
+                "desc": "登入或建立新帳戶以使用平台服務。"
+            },
+            "second": {
+                "title": "點擊「選擇品項」以自訂您的餐點",
+                "desc": "從菜單中選擇並根據您的喜好和飲食需求自訂餐點。"
+            },
+            "third": {
+                "title": "點擊「送出訂單」並等待餐點送達",
+                "desc": "完成訂購流程，並等待餐點送至指定地址。"
+            }
+        }
+    },
+    "Sign": {
+        "signin": "登入會員",
+        "signup": "註冊會員",
+        "or": "或",
+        "form": {
+            "name": "姓名",
+            "email": "電子郵件",
+            "password": "密碼",
+            "phone": "電話"
+        },
+        "button": {
+            "signup": "註冊",
+            "signin": "登入"
+        },
+        "message": {
+            "signup-success": "註冊成功",
+            "signup-false": "註冊失敗",
+            "signin-success": "登入成功",
+            "signin-false": "登入失敗",
+
+            "error": {
+                "blank": "輸入不能為空",
+                "invalid-name": "名字需介於3-50字之間",
+                "invalid-email": "電子郵件格式無效",
+                "invalid-password": "密碼最少須8碼，須包含大寫字母*1、小寫字母*1、數字*1、符號*1"
+            }
+        }
+    },
+    "About":{
+        "title": "關於我們",
+        "intro": "歡迎光臨 The Cafe，這裡是城市中心讓您放鬆身心的最佳去處。我們迷人的茶與咖啡店提供一處寧靜的避風港，讓您可以放鬆並品嚐精緻的飲品。不論您是在尋找一杯完美的濃縮咖啡，還是一杯舒緩的草本茶，我們精心策劃的菜單都能滿足您的需求。The Cafe 擁有溫馨迷人的氛圍、舒適的座位、免費 Wi-Fi 和美味的糕點，是與朋友聚會、閱讀書籍或享受獨處時光的理想場所。體驗 The Cafe 所提供的寧靜氛圍和卓越飲品，讓心靈得到滿足。",
+        "address": "地址: 台北市大安區忠孝東路四段100號10樓",
+        "tel": "電話： +886-2-1234-5678",
+        "comment-title": "我們很樂意聽到您的意見...",
+        "form": {
+            "name": "姓名",
+            "email": "電子郵件",
+            "comment": "意見回饋",
+            "comment-placeholder": "請輸入您的意見"
+        }
+    },
+    "Menu": {
+        "title": "餐點專區",
+        "search-placeholder": "請輸入餐點名稱",
+        "add-cart": "加入購物車",
+         "button":{
+            "add-cart": "加入購物車",
+            "clear": "清除選項",
+            "cancel": "取消"
+        },
+        "custom": {
+            "title": "客製化餐點",
+            "size-title": "尺寸選擇",
+            "ice-title": "冰塊選擇",
+            "sugar-title": "甜度選擇"
+        }
+    },
+    "Profile": {
+        "title": "用戶資料"
+    }
+}
