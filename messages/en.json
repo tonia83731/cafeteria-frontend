@@ -1,0 +1,204 @@
+{
+    "Header": {
+        "menu": "Menu",
+        "about": "About",
+        "profile": "Profile",
+        "profile_link": {},
+        "cart": "Cart",
+        "wish": "Wish",
+        "signin": "Sign In",
+        "signout": "Sign Out",
+        "more": "More",
+        "langauge": "Langauge"
+    },
+    "Home": {
+        "slogan": "Relax and Refresh",
+        "slogan_2": "Sip Serenity at Our Tea and Coffee Haven",
+        "links": {
+            "steps": "How it works?",
+            "about": "About us",
+            "orders": "Order now"
+        },
+        "staff": "Staff Only",
+        "steps": {
+            "title": "How it works?",
+            "first": {
+                "title": "Sign in or sign up to become a member",
+                "desc": "Access the platform by logging in or creating a new account to start using the service."
+            },
+            "second": {
+                "title": "Click 'Select Item' to customize your meal",
+                "desc": "Choose from the menu and personalize your meal according to your preferences and dietary needs."
+            },
+            "third": {
+                "title": "Click 'Submit Order' and wait for your food to arrive",
+                "desc": "Complete the ordering process and await your meal delivery to the specified address."
+            }
+        }
+    },
+    "Sign": {
+        "signin": "Sign In",
+        "signup": "Sign Up",
+        "or": "or",
+        "form": {
+            "name": "Name",
+            "email": "Email",
+            "password": "Password",
+            "phone": "Phone",
+            "account": "Account"
+        },
+        "button": {
+            "signup": "Sign Up",
+            "signin": "Sign In"
+        },
+        "message": {
+            "signup-success": "Register success",
+            "signup-false": "Register failed",
+            "signin-success": "Signin success",
+            "signin-false": "Signin failed",
+            "signout-success": "Signout success",
+
+            "error": {
+                "blank": "Input cannot be blank",
+                "invalid-name": "Name should between 3-50 letters",
+                "invalid-account": "Account should between 3-50 letters",
+                "invalid-email": "Invalid email",
+                "invalid-password": "Invalid password. Password should have minimum 8 letters, included uppercase*1, lowercase*1, number*1, symbol*1"
+            }
+        }
+    },
+    "About":{
+        "title": "About Us",
+        "intro": "Welcome to The Cafe, your ultimate relaxation destination in the heart of the city. Our charming tea and coffee shop offers a tranquil haven where you can unwind and savor exceptional beverages. Whether you’re seeking the perfect espresso or a soothing herbal tea, our carefully curated menu has something for everyone. With a cozy, inviting atmosphere, comfortable seating, free Wi-Fi, and delicious pastries, The Cafe is ideal for catching up with friends, reading a book, or enjoying a peaceful moment alone. Experience the serenity and excellent drinks that await you at The Cafe.",
+        "address": "Address: 10th Floor, No. 100, Zhongxiao East Road, Section 4, Da’an District, Taipei City 106, Taiwan",
+        "tel": "Phone: +886-2-1234-5678",
+        "comment-title": "We love to here from you...",
+        "form": {
+            "name": "Name",
+            "email": "Email",
+            "comment": "Comment",
+            "comment-placeholder": "Enter your comment here"
+        },
+        "error": {
+            "blank": "Name, email and rating cannot be blank!",
+            "invalid-email": "Email invalid!",
+            "exceed": "Comment should between 0-150 letters!"
+        },
+        "success": "Comment apply successfully!",
+        "failed": "Comment apply failed!"
+    },
+    "Menu": {
+        "title": "Menu",
+        "search-placeholder": "Enter product name",
+        "button":{
+            "add-cart": "Add to Cart",
+            "clear": "Clear All",
+            "cancel": "Cancel"
+        },
+        "custom": {
+            "title": "Custom Your Drinks",
+            "size-title": "Size Options",
+            "ice-title": "Ice Options",
+            "sugar-title": "Sigar Options"
+        },
+        "message": {
+            "empty": "Quantity cannot be 0.",
+            "added-failed": "Product add failed",
+            "added-success": "Product added",
+            "added-wish-failed": "Product added to wish failed",
+            "added-wish-success": "Product added to wish success",
+            "removed-wish-failed": "Product removed to wish failed",
+            "removed-wish-success": "Product removed to wish success"
+        }
+    },
+    "Profile": {
+        "title": "Profile",
+        "language": "Language",
+        "sub-header": {
+            "settings": "Settings",
+            "orders": "Orders",
+            "coupons": "Coupons"
+        },
+        "due": "Due Date",
+        "button": {
+            "copy": "COPY",
+            "copied": "COPIED!"
+        },
+        "table": {
+            "header": {
+                "date": "Date",
+                "items": "Item Quantity",
+                "price": "Total Price",
+                "shipping": "Shipping",
+                "payment": "Payment",
+                "status": "Status"
+            }
+        },
+        "no-coupon": "No coupon applied",
+        "cancel-order": "Cancel Order",
+        "update-profile": "Updated",
+        "message": {
+            "blank": "Name, email cannot be blank",
+            "invalid-name": "Name should between 3-50 letters",
+            "invalid-email": "Invalid email",
+            "invalid-password": "Invalid password. Password should have minimum 8 letters, included uppercase*1, lowercase*1, number*1, symbol*1"
+        }
+    },
+    "Wish": {
+        "title": "Wish",
+        "purchase": "Go to purchase",
+        "message": {
+            "removed-wish-failed": "Product removed to wish failed",
+            "removed-wish-success": "Product removed to wish success"
+        }
+    },
+    "Cart": {
+        "title": "Cart",
+        "calculate": "Calculation",
+        "order": "Order Info.",
+        "personal": "Personal Info.",
+        "orderers": "Orderer",
+        "payment": "Payment Info.",
+        "shipping-method": "Shipping Method",
+        "payment-method": "Payment Method",
+        "button":{
+            "edit": "Edit",
+            "delete": "Delete",
+            "confirm": "Confirm",
+            "cancel": "Cancel",
+            "prev": "Prev",
+            "next": "Next",
+            "submit": "Submit",
+            "add": "Add"
+        },
+        "input": {
+            "name": "Name",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "sync": "Same as the orderer",
+            "code": "Ender coupon code",
+            "cardName": "Card Name",
+            "cardNumber": "Card Number",
+            "cardDate": "Card Date",
+            "cardCVC": "CVC"
+        },
+        "price": {
+            "product-price": "Items",
+            "shipping-price": "Shipping",
+            "tax-price": "TAX(10%)",
+            "total": "Total"
+        },
+        "message": {
+            "delete-error": "Cart item delete failed",
+            "delete-success": "Cart item deleted",
+            "edit-error": "Cart item edit failed",
+            "edit-success": "Cart item edit success"
+        },
+        "custom": {
+            "size-title": "Size Options",
+            "ice-title": "Ice Options",
+            "sugar-title": "Sigar Options"
+        }
+    }
+}

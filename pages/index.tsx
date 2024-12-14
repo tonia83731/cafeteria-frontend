@@ -1,115 +1,77 @@
-import Image from "next/image";
-import localFont from "next/font/local";
+import Link from "next/link";
+import { useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import HomeLayout from "@/components/layout/HomeLayout";
+import StepSection from "@/components/home-page/StepSection";
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const t = useTranslations("Home");
+  const { signin_success, signout_success } = useRouter().query;
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const home_link = [
+    {
+      href: `/#steps`,
+      title: `${t("links.steps")}`,
+    },
+    {
+      href: `/about`,
+      title: `${t("links.about")}`,
+    },
+    {
+      href: `/menu`,
+      title: `${t("links.orders")}`,
+    },
+  ];
+
+  useEffect(() => {
+    if (!signin_success) return;
+    toast.success(`${t("message.signin-success")}`);
+  }, [signin_success]);
+
+  useEffect(() => {
+    if (!signout_success) return;
+    toast.success(`${t("message.signout_success")}`);
+  }, [signout_success]);
+
+  return (
+    <HomeLayout>
+      <div className="w-full h-full flex flex-col gap-4 md:gap-8 justify-center items-center">
+        <div>
+          <h1 className="text-6xl md:text-8xl text-ivory font-italiana text-center">
+            THE CAFE
+          </h1>
+          <p className="text-center text-base md:text-2xl text-ivory">
+            {t("slogan")}
+            <br />
+            {t("slogan_2")}
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <div className="flex flex-col gap-2 w-1/2 mx-auto text-center md:grid md:grid-cols-3">
+          {home_link.map(({ href, title }, index) => {
+            return (
+              <Link
+                href={href}
+                key={`home-link-${index}`}
+                className="bg-ivory rounded-lg py-2 md:text-lg"
+              >
+                {title}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+      <StepSection />
+    </HomeLayout>
   );
+}
+
+export async function getStaticProps(context: any) {
+  return {
+    props: {
+      messages: (await import(`../messages/${context.locale}.json`)).default,
+    },
+  };
 }

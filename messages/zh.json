@@ -1,0 +1,207 @@
+{
+    "Header": {
+        "menu": "產品列表",
+        "about": "關於我們",
+        "profile": "用戶資訊",
+        "profile_link": {},
+        "cart": "購物車",
+        "wish": "我的最愛",
+        "signin": "登入",
+        "signout": "登出",
+        "more": "更多內容",
+        "langauge": "語言"
+    },
+    "Home": {
+        "slogan": "放鬆身心，煥然一新",
+        "slogan_2": "在我們的茶與咖啡天堂品味寧靜",
+        "links": {
+            "steps": "如何運作？",
+            "about": "關於我們",
+            "orders": "立即訂購"
+        },
+        "staff": "員工專用",
+        "steps": {
+            "title": "如何運作？",
+            "first": {
+                "title": "登入或註冊成為會員",
+                "desc": "登入或建立新帳戶以使用平台服務。"
+            },
+            "second": {
+                "title": "點擊「選擇品項」以自訂您的餐點",
+                "desc": "從菜單中選擇並根據您的喜好和飲食需求自訂餐點。"
+            },
+            "third": {
+                "title": "點擊「送出訂單」並等待餐點送達",
+                "desc": "完成訂購流程，並等待餐點送至指定地址。"
+            }
+        }
+    },
+    "Sign": {
+        "signin": "登入會員",
+        "signup": "註冊會員",
+        "or": "或",
+        "form": {
+            "name": "姓名",
+            "email": "電子郵件",
+            "password": "密碼",
+            "phone": "電話",
+            "account": "帳號"
+        },
+        "button": {
+            "signup": "註冊",
+            "signin": "登入"
+        },
+        "message": {
+            "signup-success": "註冊成功",
+            "signup-false": "註冊失敗",
+            "signin-success": "登入成功",
+            "signin-false": "登入失敗",
+            "signout-success": "登出成功",
+
+            "error": {
+                "blank": "輸入不能為空",
+                "invalid-name": "名字需介於3-50字之間",
+                "invalid-account": "帳號需介於3-50字之間",
+                "invalid-email": "電子郵件格式無效",
+                "invalid-password": "密碼最少須8碼，須包含大寫字母*1、小寫字母*1、數字*1、符號*1"
+            }
+        }
+    },
+    "About":{
+        "title": "關於我們",
+        "intro": "歡迎光臨 The Cafe，這裡是城市中心讓您放鬆身心的最佳去處。我們迷人的茶與咖啡店提供一處寧靜的避風港，讓您可以放鬆並品嚐精緻的飲品。不論您是在尋找一杯完美的濃縮咖啡，還是一杯舒緩的草本茶，我們精心策劃的菜單都能滿足您的需求。The Cafe 擁有溫馨迷人的氛圍、舒適的座位、免費 Wi-Fi 和美味的糕點，是與朋友聚會、閱讀書籍或享受獨處時光的理想場所。體驗 The Cafe 所提供的寧靜氛圍和卓越飲品，讓心靈得到滿足。",
+        "address": "地址: 台北市大安區忠孝東路四段100號10樓",
+        "tel": "電話： +886-2-1234-5678",
+        "comment-title": "我們很樂意聽到您的意見...",
+        "form": {
+            "name": "姓名",
+            "email": "電子郵件",
+            "comment": "意見回饋",
+            "comment-placeholder": "請輸入您的意見"
+        },
+        "error": {
+            "blank": "姓名、電子郵件和評分不可空白!",
+            "invalid-email": "電子郵件格式無效!",
+            "exceed": "評論需介於0-150字之間!"
+        },
+        "success": "評論新增成功",
+        "failed": "評論新增失敗"
+    },
+    "Menu": {
+        "title": "餐點專區",
+        "search-placeholder": "請輸入餐點名稱",
+        "add-cart": "加入購物車",
+         "button":{
+            "add-cart": "加入購物車",
+            "clear": "清除選項",
+            "cancel": "取消"
+        },
+        "custom": {
+            "title": "客製化餐點",
+            "size-title": "尺寸選擇",
+            "ice-title": "冰塊選擇",
+            "sugar-title": "甜度選擇"
+        },
+        "message": {
+            "empty": "請選商品數量",
+            "added-failed": "產品新增失敗",
+            "added-success": "產品新增成功",
+            "added-wish-failed": "產品加入最愛清單失敗",
+            "added-wish-success": "產品加入最愛清單成功",
+            "removed-wish-failed": "產品移除最愛清單失敗",
+            "removed-wish-success": "產品移除最愛清單成功"
+        }
+    },
+    "Profile": {
+        "title": "用戶資料",
+        "language": "語言選擇",
+        "sub-header": {
+            "settings": "基本設定",
+            "orders": "訂單資料",
+            "coupons": "優惠券"
+        },
+        "due": "有效日期",
+        "button": {
+            "copy": "複製",
+            "copied": "已複製!"
+        },
+        "table": {
+            "header": {
+                "date": "購買日期",
+                "items": "購買數量",
+                "price": "購買金額",
+                "shipping": "運送方式",
+                "payment": "付款方式",
+                "status": "訂單狀態"
+            }
+        },
+        "no-coupon": "未使用優惠券",
+        "cancel-order": "取消訂單",
+        "update-profile": "更新資料",
+        "message": {
+            "blank": "姓名、Email不可為空",
+            "invalid-name": "名字需介於3-50字之間",
+            "invalid-email": "電子郵件格式無效",
+            "invalid-password": "密碼最少須8碼，須包含大寫字母*1、小寫字母*1、數字*1、符號*1",
+            "profile-update-success": "用戶資料更新成功",
+            "profile-update-failed": "用戶資料更新失敗"
+        }
+    },
+    "Wish": {
+        "title": "我的最愛",
+        "purchase": "前往購買",
+        "message": {
+            "removed-wish-failed": "產品移除最愛清單失敗",
+            "removed-wish-success": "產品移除最愛清單成功"
+        }
+    },
+    "Cart": {
+        "title": "購物車",
+        "calculate": "價格計算",
+        "order": "訂單資訊",
+        "personal": "收件人資訊",
+        "orderers": "訂購人",
+        "payment": "付款資訊",
+        "shipping-method": "運送方式",
+        "payment-method": "付款方式",
+        "button":{
+            "edit": "修改",
+            "delete": "刪除",
+            "confirm": "確認",
+            "cancel": "取消",
+            "prev": "上一頁",
+            "next": "下一頁",
+            "submit": "提交",
+            "add": "新增"
+        },
+        "input": {
+            "name": "姓名",
+            "email": "電子郵件",
+            "phone": "電話",
+            "address": "地址",
+            "sync": "與訂購人相同",
+            "code": "請輸入優惠券代碼",
+            "cardName": "持卡人",
+            "cardNumber": "卡片號碼",
+            "cardDate": "有效日期",
+            "cardCVC": "CVC"
+        },
+        "price": {
+            "product-price": "小計",
+            "shipping-price": "運費",
+            "tax-price": "TAX(10%)",
+            "total": "總計"
+        },
+        "message": {
+            "delete-error": "刪除失敗",
+            "delete-success": "刪除成功",
+            "edit-error": "修改失敗",
+            "edit-success": "修改成功"
+        },
+        "custom": {
+            "size-title": "尺寸選擇",
+            "ice-title": "冰塊選擇",
+            "sugar-title": "甜度選擇"
+        }
+    }
+}
