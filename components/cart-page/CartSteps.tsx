@@ -36,11 +36,6 @@ const CartSteps = ({ shippings, payments }: CartStepProps) => {
           },
         ]
       : []),
-    // {
-    //   id: "step3-2",
-    //   title: `${t("payment")}`,
-    //   tag: <CartCash />,
-    // },
   ];
   const isLastStep = steps === steps_tag.length - 1;
   return (
