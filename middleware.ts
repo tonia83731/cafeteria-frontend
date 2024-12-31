@@ -3,19 +3,20 @@ import { NextResponse, NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const token = (await cookies()).get("authToken");
-  const protectedRoute = [
-    "/carts",
-    "/wishes",
-    "/profile",
-    "/profile/orders",
-    "/profile/coupons",
-  ];
+  // const protectedRoute = [
+  //   "/carts",
+  //   "/wishes",
+  //   "/profile",
+  //   "/profile/orders",
+  //   "/profile/coupons",
+  // ];
 
   const url = req.nextUrl.clone();
-
-  const isProtectedRoute = protectedRoute.some((route) =>
-    url.pathname.startsWith(route)
-  );
+  const userIdRegex = /^\/(\w+)\/(carts|wishes|profile(\/orders|\/coupons)?)$/;
+  const isProtectedRoute = userIdRegex.test(url.pathname);
+  // const isProtectedRoute = protectedRoute.some((route) =>
+  //   url.pathname.startsWith(route)
+  // );
 
   if (isProtectedRoute) {
     if (!token) {
@@ -28,5 +29,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/carts", "/wishes", "/profile/:path*"],
+  matcher: ["/:path*"],
 };

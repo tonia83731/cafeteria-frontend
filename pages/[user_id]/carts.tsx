@@ -105,6 +105,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { user_id } = context.query;
 
   try {
+    const authChecked = await authFetch(context, `/users/checked-auth`, "GET");
+
+    if (!authChecked.isAuth) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     const [user, cart] = await Promise.all([
       authFetch(context, `/users/${user_id}`, "GET"),
       authFetch(context, `/carts/${user_id}`, "GET"),

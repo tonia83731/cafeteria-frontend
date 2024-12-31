@@ -112,6 +112,17 @@ export default ProfileOrdersPage;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { user_id } = context.query;
   try {
+    const authChecked = await authFetch(context, `/users/checked-auth`, "GET");
+
+    if (!authChecked.isAuth) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     const response = await authFetch(context, `/orders/${user_id}`, "GET");
     return {
       props: {
