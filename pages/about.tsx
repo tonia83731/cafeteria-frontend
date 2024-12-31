@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Slider from "react-slick";
 import { useTranslations } from "next-intl";
-import { serverFetch_unauth } from "@/lib/fetch";
+import { serverFetch } from "@/lib/fetch";
 import { RiStarSFill } from "react-icons/ri";
 import FrontLayout from "@/components/layout/FrontLayout";
 import AboutMobileImg from "@/public/images/about_mobile.png";
@@ -101,7 +101,7 @@ export default AboutPage;
 
 export async function getStaticProps(context: any) {
   try {
-    const response = await serverFetch_unauth("/api/comments/top5");
+    const response = await serverFetch("/comments/top5");
     if (!response.success)
       return {
         props: {

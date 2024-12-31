@@ -2,7 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 // import { useAuthContext } from "@/context/authContext";
-import { useOrderContext } from "@/context/orderContext";
+// import { useOrderContext } from "@/context/orderContext";
 // import { MultiLangProps } from "@/types/default";
 import { MenuProductsProps } from "@/types/menu-type";
 import QuantityBox from "../input/QuantityBox";
@@ -11,6 +11,9 @@ import { FaHeart } from "react-icons/fa6";
 import { clientFetch } from "@/lib/fetch";
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const MenuProduct = ({
   id,
@@ -25,17 +28,16 @@ const MenuProduct = ({
 }: MenuProductsProps) => {
   const token = getCookie("authToken");
   const t = useTranslations("Menu");
-  // const { userProfile } = useAuthContext();
-  // console.log(title, isWished);
-  const { customData } = useOrderContext();
+  const { userId } = useSelector((state: RootState) => state.auth);
+  const { sizesOptions, icesOptions, sugarsOptions } = useSelector(
+    (state: RootState) => state.custom
+  );
   const [quantity, setQuantity] = useState(0);
+  const [authoToggle, setAuthToggle] = useState(false);
   const [optionToggle, setOptionToggle] = useState(false);
   const [sizeOption, setSizeOption] = useState(1);
   const [iceOption, setIceOption] = useState(1);
   const [sugarOption, setSugarOption] = useState(1);
-
-  // const [wished, setWished] = useState(false);
-  // console.log(title, wished);
 
   const handleSetDefault = () => {
     setSizeOption(1);
@@ -44,10 +46,18 @@ const MenuProduct = ({
   };
 
   const handleCartToggle = () => {
+    if (!token) {
+      setAuthToggle(true);
+      return;
+    }
     setOptionToggle(true);
   };
 
   const handleAddCart = async (id: number, categoryId: number) => {
+    if (!token) {
+      setAuthToggle(true);
+      return;
+    }
     if (quantity <= 0) {
       toast.error(t("message.empty"));
       return;
@@ -61,12 +71,11 @@ const MenuProduct = ({
     };
 
     try {
-      const response = await clientFetch("/carts/add-cart", {
+      const response = await clientFetch(`/carts/${userId}/add-cart`, {
         method: "POST",
         body,
         token,
       });
-      // console.log(response);
 
       if (response.success) {
         handleSetDefault();
@@ -90,10 +99,6 @@ const MenuProduct = ({
     setOptionToggle(false);
     handleSetDefault();
   };
-
-  // useEffect(() => {
-  //   setWished(isWished);
-  // }, [isWished]);
 
   return (
     <>
@@ -135,15 +140,17 @@ const MenuProduct = ({
 
           {categoryId === 3 || categoryId === 4 ? (
             <button
+              disabled={quantity === 0}
               onClick={() => handleCartToggle()}
-              className="bg-apricot text-white w-full h-9 rounded-lg hover:shadow-md"
+              className="bg-apricot text-white w-full h-9 rounded-lg hover:shadow-md disabled:bg-default-gray disabled:text-white"
             >
               {t("button.add-cart")}
             </button>
           ) : (
             <button
+              disabled={quantity === 0}
               onClick={() => handleAddCart(id, categoryId)}
-              className="bg-apricot text-white w-full h-9 rounded-lg hover:shadow-md"
+              className="bg-apricot text-white w-full h-9 rounded-lg hover:shadow-md disabled:bg-default-gray disabled:text-white"
             >
               {t("button.add-cart")}
             </button>
@@ -162,7 +169,7 @@ const MenuProduct = ({
                 {t("custom.size-title")}
               </h5>
               <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-                {customData.sizes.map(({ id, title, price }) => {
+                {sizesOptions.map(({ id, title, price }) => {
                   return (
                     <label
                       htmlFor={`size-${id}`}
@@ -190,7 +197,7 @@ const MenuProduct = ({
             <div className="flex flex-col gap-2">
               <h5 className="font-italiana text-lg">{t("custom.ice-title")}</h5>
               <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-                {customData.ices.map(({ id, title }) => {
+                {icesOptions.map(({ id, title }) => {
                   return (
                     <label
                       htmlFor={`ice-${id}`}
@@ -220,7 +227,7 @@ const MenuProduct = ({
                 {t("custom.sugar-title")}
               </h5>
               <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-                {customData.sugars.map(({ id, title }) => {
+                {sugarsOptions.map(({ id, title }) => {
                   return (
                     <label
                       htmlFor={`sugar-${id}`}
@@ -274,6 +281,29 @@ const MenuProduct = ({
                 {t("button.cancel")}
               </button>
             </div>
+          </footer>
+        </Modal>
+      )}
+      {authoToggle && (
+        <Modal
+          title={`${t("auth.title")}`}
+          onClose={() => setAuthToggle(false)}
+          isOpen={authoToggle}
+        >
+          <div>{t("auth.message")}</div>
+          <footer className="">
+            <Link
+              href="/signin"
+              className="bg-apricot text-white w-full h-9 md:h-full rounded-lg hover:shadow-md"
+            >
+              {t("auth.to-signin")}
+            </Link>
+            <button
+              onClick={() => setAuthToggle(false)}
+              className="bg-moss-60 text-white w-full h-9 md:h-full rounded-lg"
+            >
+              {t("button.cancel")}
+            </button>
           </footer>
         </Modal>
       )}

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { getCookie } from "cookies-next";
 import { FaHeart } from "react-icons/fa";
-import { MultiLangProps } from "@/types/default";
+import { MultiLangProps } from "@/types/default-input";
 
 type WishProductsProps = {
   id: number;
@@ -12,7 +12,7 @@ type WishProductsProps = {
   price: number;
   image: string;
   categoryId: number;
-  locale: "en" | "zh";
+  locale: string;
   isWished: boolean;
   onWishClick: (productId: number) => void;
 };
@@ -36,7 +36,7 @@ const WishProduct = ({
         <div className="w-[100px] h-[100px] relative justify-self-center">
           <Image
             src={image}
-            alt={title[locale]}
+            alt={title[locale as "en" | "zh"]}
             width={200}
             height={200}
             className="w-[100px] h-[100px] opacity-90 object-cover"
@@ -53,7 +53,7 @@ const WishProduct = ({
         </div>
         <div className="flex flex-col justify-between h-full">
           <div className="text-lg font-bold flex justify-between">
-            <h5>{title[locale]}</h5>
+            <h5>{title[locale as "en" | "zh"]}</h5>
             <div className="text-apricot">${price}</div>
           </div>
           <div className="w-full flex justify-end">

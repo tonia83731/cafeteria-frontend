@@ -1,10 +1,15 @@
-import { useTranslations } from "next-intl";
-import { CartItemProps } from "@/types/cart-type";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useOrderContext } from "@/context/orderContext";
+import { useRouter } from "next/router";
+import { useTranslations } from "next-intl";
+import { getCookie } from "cookies-next";
+import { toast } from "react-toastify";
+import { clientFetch } from "@/lib/fetch";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store";
 import QuantityBox from "../input/QuantityBox";
-type LangOptionType = "zh" | "en";
+import { CartItemProps } from "@/types/cart-type";
+import { LangOptionType } from "@/types/custom-type";
+import { getCartLists, updatedOrderPrice } from "@/slices/orderSlice";
 
 const CartItems = ({
   id,
@@ -19,15 +24,15 @@ const CartItems = ({
   total,
 }: CartItemProps) => {
   const t = useTranslations("Cart");
-  const { locale } = useRouter();
-  const {
-    // currEditItem,
-    customData,
-    handleProductDelete,
-    handleProductEdit,
-    // handleEditDropdown,
-    // handleUpdateQuantity,
-  } = useOrderContext();
+  const token = getCookie("authToken");
+  const dispatch = useDispatch();
+  const { locale, query } = useRouter();
+  const { user_id } = query;
+  const { sizesOptions, icesOptions, sugarsOptions } = useSelector(
+    (state: RootState) => state.custom
+  );
+  const { cartLists } = useSelector((state: RootState) => state.order);
+
   const tag_style =
     "bg-moss text-white text-xs py-1.5 lg:text-base rounded-md text-center";
 
@@ -38,20 +43,28 @@ const CartItems = ({
     iceId: iceId,
     total: total,
   });
-  //   const [productQuantity, setProductQuantity] = useState(quantity);
+
   const [editToggle, setEditToggle] = useState(false);
   const handleUpdateQuantity = (type: "plus" | "minus") => {
     if (type === "plus") {
-      // const curr_price = (customOptions.quantity + 1) * product.price
+      const curr_price = (customOptions.quantity + 1) * product.price;
+
       setCustomOptions((prev) => ({
         ...prev,
         quantity: prev.quantity + 1,
-        // total: curr_price,
+        total: curr_price,
       }));
     } else {
-      if (quantity === 1) return;
-      // const curr_price = (customOptions.quantity - 1) * product.price
-      setCustomOptions((prev) => ({ ...prev, quantity: prev.quantity - 1 }));
+      if (quantity === 1) {
+        // handleProductDelete(id)
+        return;
+      }
+      const curr_price = (customOptions.quantity - 1) * product.price;
+      setCustomOptions((prev) => ({
+        ...prev,
+        quantity: prev.quantity - 1,
+        total: curr_price,
+      }));
     }
   };
 
@@ -60,6 +73,53 @@ const CartItems = ({
       setEditToggle(true);
     } else {
       handleProductEdit(id, customOptions);
+    }
+  };
+
+  const handleProductEdit = async (id: number, body: any) => {
+    try {
+      const response = await clientFetch(`/carts/${user_id}/${id}`, {
+        method: "PUT",
+        token,
+        body,
+      });
+      if (!response.success) {
+        toast.error(t("message.edit-error"));
+        return;
+      }
+
+      const update_products = cartLists.map((item) => {
+        return item.id === id ? response.data : item;
+      });
+      dispatch(getCartLists({ data: update_products }));
+      toast.success(t("message.edit-success"));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleProductDelete = async (id: number) => {
+    try {
+      const response = await clientFetch(`/carts/${user_id}/${id}`, {
+        method: "DELETE",
+        token,
+      });
+      if (!response.success) {
+        toast.error(t("message.delete-error"));
+        return;
+      }
+
+      const updated_cart_items = cartLists.filter((item) => item.id !== id);
+      const total = updated_cart_items.reduce(
+        (acc, curr) => acc + curr.total,
+        0
+      );
+
+      dispatch(getCartLists({ data: updated_cart_items }));
+      dispatch(updatedOrderPrice({ name: "productPrice", value: total }));
+      toast.success(t("message.delete-success"));
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -76,8 +136,7 @@ const CartItems = ({
 
   useEffect(() => {
     const sizePrice =
-      customData.sizes.find((item) => item.id === customOptions.sizeId)
-        ?.price || 0;
+      sizesOptions.find((item) => item.id === customOptions.sizeId)?.price || 0;
     const basePrice = product.price || 0;
 
     const newTotal = (basePrice + sizePrice) * customOptions.quantity;
@@ -88,7 +147,7 @@ const CartItems = ({
   }, [
     customOptions.quantity,
     customOptions.sizeId,
-    customData.sizes,
+    sizesOptions,
     product.price,
   ]);
 
@@ -149,7 +208,7 @@ const CartItems = ({
           <div className="flex flex-col gap-2">
             <h5 className="font-italiana text-lg">{t("custom.size-title")}</h5>
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-              {customData.sizes.map(({ id, title, price }) => {
+              {sizesOptions.map(({ id, title, price }) => {
                 return (
                   <label
                     htmlFor={`size-${id}`}
@@ -179,7 +238,7 @@ const CartItems = ({
           <div className="flex flex-col gap-2">
             <h5 className="font-italiana text-lg">{t("custom.ice-title")}</h5>
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-              {customData.ices.map(({ id, title }) => {
+              {icesOptions.map(({ id, title }) => {
                 return (
                   <label
                     htmlFor={`ice-${id}`}
@@ -209,7 +268,7 @@ const CartItems = ({
           <div className="flex flex-col gap-2">
             <h5 className="font-italiana text-lg">{t("custom.sugar-title")}</h5>
             <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-              {customData.sugars.map(({ id, title }) => {
+              {sugarsOptions.map(({ id, title }) => {
                 return (
                   <label
                     htmlFor={`sugar-${id}`}

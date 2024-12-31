@@ -5,14 +5,16 @@ import { useTranslations } from "next-intl";
 import { getCookie } from "cookies-next";
 import FrontLayout from "@/components/layout/FrontLayout";
 import WishProduct from "@/components/wish-page/WishProduct";
-import { clientFetch, serverFetch } from "@/lib/fetch";
+import { clientFetch, authFetch } from "@/lib/fetch";
 import { toast } from "react-toastify";
+import { WishProductProps } from "@/types/menu-type";
 
 interface WishPageData {
-  wishes: any[];
+  wishes: WishProductProps[];
+  userId: number | null;
 }
 
-const WishPage = ({ wishes }: WishPageData) => {
+const WishPage = ({ wishes, userId }: WishPageData) => {
   const t = useTranslations("Wish");
   const token = getCookie("authToken");
   const { locale } = useRouter();
@@ -20,10 +22,13 @@ const WishPage = ({ wishes }: WishPageData) => {
 
   const handleWishRemove = async (productId: number) => {
     try {
-      const response = await clientFetch(`/wishes/${productId}/remove`, {
-        method: "DELETE",
-        token,
-      });
+      const response = await clientFetch(
+        `/wishes/${userId}/${productId}/remove`,
+        {
+          method: "DELETE",
+          token,
+        }
+      );
       if (response.success) {
         toast.success(t("message.removed-wish-success"));
         const updated_products = wishProducts.filter(
@@ -45,7 +50,7 @@ const WishPage = ({ wishes }: WishPageData) => {
             <WishProduct
               {...wish}
               key={`wishproduct-${index}`}
-              locale={locale}
+              locale={locale as string}
               onWishClick={handleWishRemove}
             />
           );
@@ -58,17 +63,21 @@ const WishPage = ({ wishes }: WishPageData) => {
 export default WishPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { user_id } = context.query;
+
   try {
-    const response = await serverFetch(
+    const response = await authFetch(
       context,
-      "/api/wishes/all-products",
+      `/wishes/${user_id}/all-products`,
       "GET"
     );
 
     return {
       props: {
         wishes: response.success ? response.data : [],
-        messages: (await import(`../messages/${context.locale}.json`)).default,
+        userId: user_id,
+        messages: (await import(`../../messages/${context.locale}.json`))
+          .default,
       },
     };
   } catch (error) {
@@ -76,7 +85,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         wishes: [],
-        messages: (await import(`../messages/${context.locale}.json`)).default,
+        userId: null,
+        messages: (await import(`../../messages/${context.locale}.json`))
+          .default,
       },
     };
   }

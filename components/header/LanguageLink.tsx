@@ -1,25 +1,18 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAuthContext } from "@/context/authContext";
-
-export const language_options = [
-  {
-    value: "zh",
-    label: "中文",
-  },
-  {
-    value: "en",
-    label: "English",
-  },
-];
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { language_options } from "@/data/language_options";
 
 const LanguageLink = ({ className = "w-6 h-6" }: { className?: string }) => {
   const { locale, asPath, push, pathname } = useRouter();
-  const { isAuth, userProfile } = useAuthContext();
+  const { isAuth, userLanguage } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const [currlanguage, setCurrlanguage] = useState(() => {
     const user_language = language_options.find(
-      (lang) => lang.value === userProfile?.language
+      (lang) => lang.value === userLanguage
     );
     const default_language = language_options.find(
       (lang) => lang.value === locale
@@ -37,12 +30,11 @@ const LanguageLink = ({ className = "w-6 h-6" }: { className?: string }) => {
 
   useEffect(() => {
     const user_language = language_options.find(
-      (lang) => lang.value === userProfile?.language
+      (lang) => lang.value === userLanguage
     );
     const default_language = language_options.find(
       (lang) => lang.value === locale
     );
-    // setCurrlanguage(isAuth && user_language ? user_language : default_language);
 
     const new_language =
       isAuth && user_language ? user_language : default_language;
@@ -55,7 +47,7 @@ const LanguageLink = ({ className = "w-6 h-6" }: { className?: string }) => {
         });
       }
     }
-  }, [isAuth, userProfile?.language, locale]);
+  }, [isAuth, userLanguage, locale]);
   return (
     <button
       disabled={isAuth}

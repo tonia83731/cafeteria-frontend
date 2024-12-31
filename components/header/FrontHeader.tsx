@@ -1,18 +1,66 @@
-import { useMemo } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useAuthContext } from "@/context/authContext";
+import { useRouter } from "next/router";
+import { getCookie } from "cookies-next";
+import { clientFetch } from "@/lib/fetch";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { updatedAuthStatus, userSignOut } from "@/slices/authSlice";
+
 import { FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import { MdRestaurantMenu } from "react-icons/md";
 import { AiOutlineInfo } from "react-icons/ai";
 import { TiUser } from "react-icons/ti";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa6";
+
 import TopHeader from "./TopHeader";
 import SideHeader from "./SideHeader";
 
+export type NavLinkProps = {
+  title: string;
+  href?: string;
+  icon: ReactNode;
+};
+
+export type NavLinksType = {
+  title: string;
+  href: string;
+  icon: ReactNode;
+  position: number;
+  isHidden: boolean;
+};
+
+export type HeaderProps = {
+  isAuth?: boolean;
+  navlinks: NavLinksType[];
+  onSignOut: () => void;
+};
+
 const FrontHeader = () => {
   const t = useTranslations("Header");
-  const { isAuth, handleSignout } = useAuthContext();
+  const router = useRouter();
+  const token = getCookie("authToken");
+  // console.log(token);
+  const dispatch = useDispatch();
+  const { isAuth, userId } = useSelector((state: RootState) => state.auth);
+
+  const handleSignOut = () => {
+    dispatch(userSignOut());
+    dispatch(
+      updatedAuthStatus({
+        isAuth: false,
+        user: {
+          id: null,
+          language: "zh",
+        },
+      })
+    );
+    router.push({
+      pathname: "/",
+      query: { signout_success: "true" },
+    });
+  };
 
   const navlinks = useMemo(
     () => [
@@ -32,21 +80,21 @@ const FrontHeader = () => {
       },
       {
         title: t("profile"),
-        href: isAuth ? `/profile` : "/",
+        href: isAuth && userId ? `/${userId}/profile` : "/",
         icon: <TiUser />,
         position: 1,
         isHidden: !isAuth,
       },
       {
         title: t("cart"),
-        href: isAuth ? `/carts` : "/",
+        href: isAuth && userId ? `/${userId}/carts` : "/",
         icon: <FaCartShopping />,
         position: 2,
         isHidden: !isAuth,
       },
       {
         title: t("wish"),
-        href: isAuth ? `/wishes` : "/",
+        href: isAuth && userId ? `/${userId}/wishes` : "/",
         icon: <FaHeart />,
         position: 2,
         isHidden: !isAuth,
@@ -59,21 +107,50 @@ const FrontHeader = () => {
         isHidden: false,
       },
     ],
-    [t, isAuth]
+    [t, isAuth, userId]
   );
 
-  // const handleSignout = () => {};
+  useEffect(() => {
+    if (!token) return;
+    // console.log(token);
+    const checkedAuth = async () => {
+      try {
+        const response = await clientFetch("/users/checked-auth", {
+          token,
+        });
+        // console.log("auth-checked", response);
+        if (!response.success) {
+          dispatch(
+            updatedAuthStatus({
+              isAuth: false,
+              user: {
+                id: null,
+                language: "zh",
+              },
+            })
+          );
+          return;
+        }
+        const { isAuth, user } = response;
+        dispatch(updatedAuthStatus({ isAuth, user }));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkedAuth();
+  }, [token]);
+
   return (
     <>
       <TopHeader
         isAuth={isAuth}
         navlinks={navlinks}
-        onSignOut={handleSignout}
+        onSignOut={handleSignOut}
       />
       <SideHeader
         isAuth={isAuth}
         navlinks={navlinks}
-        onSignOut={handleSignout}
+        onSignOut={handleSignOut}
       />
     </>
   );

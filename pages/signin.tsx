@@ -13,6 +13,7 @@ export default function SignIn() {
     if (!signup_success) return;
     toast.success(`${t("message.signup-success")}`);
   }, [signup_success]);
+
   return (
     <AuthLayout>
       <div className="flex flex-col gap-6">

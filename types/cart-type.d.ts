@@ -26,15 +26,6 @@ export type CartItemProps = {
   createdAt: string;
   updatedAt: string;
 };
-export type PaymentProps = {
-  id: number;
-  title: MultiLangProps;
-  createdAt: string;
-  updatedAt: string;
-};
-type ShippingProps = PaymentProps & {
-  price: number;
-};
 
 interface CartPageData {
   total: number;

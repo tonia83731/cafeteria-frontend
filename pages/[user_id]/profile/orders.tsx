@@ -3,51 +3,26 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslations } from "next-intl";
 import { getCookie } from "cookies-next";
-import { serverFetch, clientFetch } from "@/lib/fetch";
+import { authFetch, clientFetch } from "@/lib/fetch";
 import ProfileLayout from "@/components/layout/ProfileLayout";
 import ProfileOrder from "@/components/profile-page/ProfileOrder";
+import { status_options } from "@/data/status_option";
+import { OrderProps } from "@/types/order-type";
+import { LangOptionType } from "@/types/custom-type";
 
-const ProfileOrdersPage = ({ orders }: { orders: any }) => {
+const ProfileOrdersPage = ({
+  orders,
+  user_id,
+}: {
+  orders: OrderProps[];
+  user_id: number | undefined;
+}) => {
   //   console.log(orders);
   const { locale } = useRouter();
   const token = getCookie("authToken");
   const t = useTranslations("Profile");
-  const status = [
-    {
-      id: "all",
-      title: {
-        zh: "全部",
-        en: "All",
-      },
-      include: [],
-    },
-    {
-      id: "ongoing",
-      title: {
-        zh: "進行中",
-        en: "On-Going",
-      },
-      include: ["pending", "preparing", "delivering", "picking up"],
-    },
-    {
-      id: "completed",
-      title: {
-        zh: "已完成",
-        en: "Completed",
-      },
-      include: ["completed"],
-    },
-    {
-      id: "canceled",
-      title: {
-        zh: "已取消",
-        en: "Canceled",
-      },
-      include: ["canceled"],
-    },
-  ];
   const [userOrders, setUserOrders] = useState(orders);
-  const [selectedStatus, setSelectedStatus] = useState(status[0]);
+  const [selectedStatus, setSelectedStatus] = useState(status_options[0]);
 
   const handleSelectedStatus = (item: any) => {
     if (item.id === "all") setUserOrders(orders);
@@ -62,10 +37,13 @@ const ProfileOrdersPage = ({ orders }: { orders: any }) => {
 
   const handleOrderCancel = async (orderId: number) => {
     try {
-      const response = await clientFetch(`/orders/${orderId}/cancel`, {
-        token,
-        method: "PATCH",
-      });
+      const response = await clientFetch(
+        `/orders/${user_id}/${orderId}/cancel-order`,
+        {
+          token,
+          method: "PATCH",
+        }
+      );
 
       if (response.success) {
         const updated_order = userOrders.map((item: any) => {
@@ -81,7 +59,7 @@ const ProfileOrdersPage = ({ orders }: { orders: any }) => {
   return (
     <ProfileLayout>
       <div className="grid grid-cols-4 gap-4 md:w-3/5">
-        {status.map((item) => {
+        {status_options.map((item) => {
           return (
             <label
               htmlFor={item.id}
@@ -100,13 +78,13 @@ const ProfileOrdersPage = ({ orders }: { orders: any }) => {
                 onChange={() => handleSelectedStatus(item)}
                 checked={selectedStatus.id === item.id}
               />
-              {item.title[locale as string as "zh" | "en"]}
+              {item.title[locale as string as LangOptionType]}
             </label>
           );
         })}
       </div>
       <div className="flex flex-col gap-6">
-        <div className="grid grid-cols-4 md:grid-cols-6 bg-moss text-fern font-bold text-sm md:text-base text-center h-6 leading-6 md:h-9 md:leading-9 rounded-sm">
+        <div className="grid grid-cols-4 md:grid-cols-6 bg-moss-60 text-fern font-bold text-sm md:text-base text-center h-6 leading-6 md:h-9 md:leading-9 rounded-sm">
           <div>{t("table.header.date")}</div>
           <div className="hidden md:block">{t("table.header.items")}</div>
           <div>{t("table.header.price")}</div>
@@ -132,12 +110,14 @@ const ProfileOrdersPage = ({ orders }: { orders: any }) => {
 
 export default ProfileOrdersPage;
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { user_id } = context.query;
   try {
-    const response = await serverFetch(context, "/api/orders", "GET");
+    const response = await authFetch(context, `/orders/${user_id}`, "GET");
     return {
       props: {
         orders: response.success ? response.data : [],
-        messages: (await import(`../../messages/${context.locale}.json`))
+        user_id,
+        messages: (await import(`../../../messages/${context.locale}.json`))
           .default,
       },
     };
@@ -146,7 +126,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         orders: [],
-        messages: (await import(`../../messages/${context.locale}.json`))
+        user_id,
+        messages: (await import(`../../../messages/${context.locale}.json`))
           .default,
       },
     };

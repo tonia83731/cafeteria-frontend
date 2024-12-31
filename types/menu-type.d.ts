@@ -1,7 +1,9 @@
-import { MultiLangProps } from "./default";
+import { MultiLangProps } from "./default-input";
 
-export type CategoryOptionProps = CategoryProps & {
+export type CategoryProps = {
+  id: number;
   title: MultiLangProps;
+  code: string;
 };
 
 export type MenuProductsProps = {
@@ -12,9 +14,6 @@ export type MenuProductsProps = {
   image: string;
   categoryId: number;
   locale: "en" | "zh";
-  //   sizes: SizeCustomProps[];
-  //   sugars: DefaultCustomProps[];
-  //   ices: DefaultCustomProps[];
   optionToggle: boolean;
   sizeOption: number;
   sugarOption: number;
@@ -30,3 +29,15 @@ export interface MenuPageData {
   sugars: DefaultCustomProps[];
   ices: DefaultCustomProps[];
 }
+
+export type WishProductProps = {
+  id: number;
+  title: MultiLangProps;
+  description: MultiLangProps;
+  price: number;
+  categoryId: number;
+  image: string;
+  isWished: boolean;
+  createdAt: string;
+  updatedAt: string;
+};

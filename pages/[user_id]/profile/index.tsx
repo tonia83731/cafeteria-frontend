@@ -1,75 +1,91 @@
 import { GetServerSideProps } from "next";
-import { FormEvent, SetStateAction, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Select from "react-select";
 import { useRouter } from "next/router";
-import { useAuthContext } from "@/context/authContext";
+import { authFetch, clientFetch } from "@/lib/fetch";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { updatedInputChange, getUserInput } from "@/slices/authSlice";
+
 import ProfileLayout from "@/components/layout/ProfileLayout";
 import ProfileForm from "@/components/profile-page/ProfileForm";
 
-import { language_options } from "@/components/header/LanguageLink";
+import { language_options } from "@/data/language_options";
+import { UserProps } from "@/types/user-auth.type";
+import { getCookie } from "cookies-next";
+import { toast } from "react-toastify";
 
-const ProfilePage = () => {
+const ProfilePage = ({
+  user,
+  user_id,
+}: {
+  user: UserProps;
+  user_id: number | undefined;
+}) => {
   const t = useTranslations("Profile");
-  const { locale } = useRouter();
-  const {
-    userProfile,
-    handleProfileSubmit,
-    handleLanguageUpdate,
-    userProfileError,
-  } = useAuthContext();
+  const token = getCookie("authToken");
+  const { locale, push, asPath } = useRouter();
+  const dispatch = useDispatch();
+  const { userInput } = useSelector((state: RootState) => state.auth);
 
-  const [users, setUsers] = useState({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    address: "",
-  });
-  const language = language_options.find((lang) => {
-    if (userProfile) {
-      return lang.value === userProfile?.language;
-    } else {
-      return lang.value === locale;
+  const handleInputChange = (name: string, value: any) => {
+    dispatch(updatedInputChange({ type: "userInput", name, value }));
+  };
+
+  const handleLanguageUpdate = async () => {
+    try {
+      const response = await clientFetch(`/users/${user_id}/language`, {
+        method: "PATCH",
+        token,
+        body: {
+          language: userInput.language.value,
+        },
+      });
+      if (!response.success) {
+        toast.error(t("message.profile-update-failed"));
+        return;
+      }
+      push(asPath, asPath, { locale: userInput.language.value });
+    } catch (error) {
+      console.log(error);
     }
-  });
-  const [perferLanguage, setPerferLanguage] = useState(language);
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    handleProfileSubmit(users);
   };
 
   useEffect(() => {
-    if (!userProfile) return;
-    setUsers({
-      name: userProfile?.name,
-      email: userProfile?.email,
-      password: "",
-      phone: userProfile?.phone ? userProfile?.phone : "",
-      address: userProfile?.address ? userProfile?.address : "",
+    if (!user) return;
+
+    const language = language_options.find((lang) => {
+      if (userInput) {
+        return lang.value === user?.language;
+      } else {
+        return lang.value === locale;
+      }
     });
-  }, [userProfile]);
+
+    const user_value = {
+      name: user.name,
+      account: user.account,
+      password: "",
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      language,
+      invoice: "",
+    };
+    dispatch(getUserInput({ inputValue: user_value }));
+  }, [user]);
 
   return (
     <ProfileLayout>
       <div className="flex flex-col gap-4 md:grid md:grid-cols-[2fr_1fr]">
-        <ProfileForm
-          userProfile={users}
-          onInputChange={(e) =>
-            setUsers((prev) => ({
-              ...prev,
-              [e.target.name]: e.target.value,
-            }))
-          }
-          isError={userProfileError}
-          onProfileSubmit={(e) => handleSubmit(e)}
-        />
+        <ProfileForm />
         <div className="h-fit border border-apricot rounded-lg p-4 flex flex-col gap-4">
           <h5 className="font-medium uppercase text-lg">{t("language")}</h5>
           <div className="flex flex-col gap-4">
             <Select
               options={language_options}
-              defaultValue={perferLanguage}
+              defaultValue={userInput.language}
               styles={{
                 indicatorSeparator: (styles) => ({
                   ...styles,
@@ -125,23 +141,14 @@ const ProfilePage = () => {
                   },
                 }),
               }}
-              onChange={(newValue, actionMeta) => {
-                console.log(newValue, actionMeta);
-                setPerferLanguage(
-                  newValue as SetStateAction<
-                    { value: string; label: string } | undefined
-                  >
-                );
+              onChange={(newValue) => {
+                handleInputChange("language", newValue);
               }}
             />
             <div className="w-full flex justify-end">
               <button
-                disabled={userProfile?.language === perferLanguage?.value}
-                onClick={() => {
-                  if (perferLanguage) {
-                    handleLanguageUpdate(perferLanguage?.value);
-                  }
-                }}
+                disabled={user?.language === userInput.language?.value}
+                onClick={handleLanguageUpdate}
                 className="w-[80px] py-1.5 rounded-lg text-center bg-apricot text-white shadow-sm disabled:bg-default-gray"
               >
                 {t("update-profile")}
@@ -156,28 +163,39 @@ const ProfilePage = () => {
 
 export default ProfilePage;
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  // try {
-  //   const response = await serverFetch(context, "/api/users", "GET");
-  //   return {
-  //     props: {
-  //       users: response.success ? response.data : [],
-  //       messages: (await import(`../../messages/${context.locale}.json`))
-  //         .default,
-  //     },
-  //   };
-  // } catch (error) {
-  //   console.log(error);
-  //   return {
-  //     props: {
-  //       users: [],
-  //       messages: (await import(`../../messages/${context.locale}.json`))
-  //         .default,
-  //     },
-  //   };
-  // }
-  return {
-    props: {
-      messages: (await import(`../../messages/${context.locale}.json`)).default,
-    },
-  };
+  const { user_id } = context.query;
+
+  try {
+    const response = await authFetch(context, `/users/${user_id}`, "GET");
+
+    if (!response.success) {
+      return {
+        props: {
+          user: null,
+          user_id,
+          messages: (await import(`../../../messages/${context.locale}.json`))
+            .default,
+        },
+      };
+    }
+
+    return {
+      props: {
+        user: response.data,
+        user_id,
+        messages: (await import(`../../../messages/${context.locale}.json`))
+          .default,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      props: {
+        user: null,
+        user_id,
+        messages: (await import(`../../../messages/${context.locale}.json`))
+          .default,
+      },
+    };
+  }
 };

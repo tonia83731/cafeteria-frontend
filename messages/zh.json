@@ -110,6 +110,11 @@
             "added-wish-success": "產品加入最愛清單成功",
             "removed-wish-failed": "產品移除最愛清單失敗",
             "removed-wish-success": "產品移除最愛清單成功"
+        },
+        "auth": {
+            "title": "使用者未登入",
+            "message": "請先登入在選擇產品",
+            "to-signin": "前往登入"
         }
     },
     "Profile": {

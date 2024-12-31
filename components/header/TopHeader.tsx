@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import LogoLink from "./LogoLink";
 import LanguageLink from "./LanguageLink";
@@ -8,11 +8,30 @@ import NavLink from "./NavLink";
 import { RxCross2 } from "react-icons/rx";
 import { IoIosMore } from "react-icons/io";
 import { FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
-import { HeaderProps } from "@/types/header";
+import { HeaderProps } from "./FrontHeader";
 
 const TopHeader = ({ isAuth, navlinks, onSignOut }: HeaderProps) => {
   const t = useTranslations("Header");
+  const navRef = useRef<HTMLDivElement>(null);
   const [isToggle, setIsToggle] = useState(false);
+
+  useEffect(() => {
+    const handleClickAway = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setIsToggle(false);
+      }
+    };
+
+    if (isToggle) {
+      document.addEventListener("mousedown", handleClickAway);
+    } else {
+      document.removeEventListener("mousedown", handleClickAway);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickAway);
+    };
+  }, [isToggle]);
   return (
     <header className="fixed top-0 left-0 bg-ivory text-natural w-full z-[999] md:hidden">
       <div className="relative md:hidden">
@@ -50,6 +69,7 @@ const TopHeader = ({ isAuth, navlinks, onSignOut }: HeaderProps) => {
           </div>
         </div>
         <nav
+          ref={navRef}
           className={`absolute top-0 ${
             isToggle ? "left-0 drop-shadow-lg" : "-left-full"
           } flex flex-col justify-between h-full min-h-screen w-[200px] bg-ivory pb-4`}

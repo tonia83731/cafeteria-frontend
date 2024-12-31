@@ -1,4 +1,4 @@
-import { InputProps } from "@/types/input-type";
+import { DefaultInputProps } from "@/types/default-input";
 
 const DefaultInput = ({
   id,
@@ -11,7 +11,7 @@ const DefaultInput = ({
   isDisabled,
   className = "h-10 md:h-14",
   onInputChange,
-}: InputProps) => {
+}: DefaultInputProps) => {
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-base md:text-lg">
@@ -33,7 +33,10 @@ const DefaultInput = ({
           type={type}
           value={value}
           placeholder={placeholder}
-          onChange={(e) => onInputChange(e)}
+          onChange={(e) => {
+            const { name, value } = e.target;
+            onInputChange(name, value);
+          }}
           className={`w-full ${className} text-fern text-base placeholder:text-natural placeholder:text-sm`}
           disabled={isDisabled}
         />

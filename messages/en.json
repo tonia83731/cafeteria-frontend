@@ -109,6 +109,11 @@
             "added-wish-success": "Product added to wish success",
             "removed-wish-failed": "Product removed to wish failed",
             "removed-wish-success": "Product removed to wish success"
+        },
+        "auth": {
+            "title": "Permission denied",
+            "message": "Please sign-in before selecting products.",
+            "to-signin": "Sign In"
         }
     },
     "Profile": {

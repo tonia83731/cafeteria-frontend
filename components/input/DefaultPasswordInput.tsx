@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { InputProps } from "@/types/input-type";
+import { DefaultInputProps } from "@/types/default-input";
 import { MdLockPerson } from "react-icons/md";
 import { IoEyeOffOutline } from "react-icons/io5";
 import { IoEyeOutline } from "react-icons/io5";
@@ -12,7 +12,7 @@ const DefaultPasswordInput = ({
   placeholder,
   value,
   onInputChange,
-}: InputProps) => {
+}: DefaultInputProps) => {
   const [passwordShowed, setPasswordShowed] = useState(false);
   return (
     <div className="flex flex-col gap-1.5">
@@ -30,7 +30,10 @@ const DefaultPasswordInput = ({
           type={passwordShowed ? "text" : "password"}
           value={value}
           className="w-full h-10 md:h-14 text-fern text-base placeholder:text-natural placeholder:text-sm"
-          onChange={(e) => onInputChange(e)}
+          onChange={(e) => {
+            const { name, value } = e.target;
+            onInputChange(name, value);
+          }}
         />
         <button
           type="button"

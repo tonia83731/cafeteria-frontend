@@ -1,3 +1,5 @@
+import { LangOptionType } from "@/types/custom-type";
+
 type MenuCategoryProps = {
   category_arr: {
     id: number;
@@ -7,7 +9,7 @@ type MenuCategoryProps = {
       en: string;
     };
   }[];
-  locale: "zh" | "en";
+  locale: LangOptionType;
   selectCategory: number | null;
   onSelectChange: (id: number) => void;
 };

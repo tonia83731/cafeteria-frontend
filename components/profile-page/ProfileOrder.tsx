@@ -4,39 +4,9 @@ import { useTranslations } from "next-intl";
 import { getCookie } from "cookies-next";
 import dayjs from "dayjs";
 import { clientFetch } from "@/lib/fetch";
-import { MultiLangProps } from "@/types/default";
+import { OrderProps, OrderDetailProps } from "@/types/order-type";
 import { GoDotFill } from "react-icons/go";
-type OrdersProps = {
-  id: number;
-  itemCount: number;
-  payment: MultiLangProps;
-  shipping: {
-    title: MultiLangProps;
-    price: number;
-  };
-  discount: {
-    code: string;
-    discountType: string;
-    discountValue: string;
-  };
-  recipientName: string;
-  recipientPhone: string;
-  recipientAddress: string;
-  status: string;
-  totalPrice: number;
-  createdAt: string;
-  onOrderCancel: (orderId: number) => void;
-};
-
-type OrderDetailProps = {
-  product: MultiLangProps;
-  size: MultiLangProps;
-  ice: MultiLangProps;
-  sugar: MultiLangProps;
-  quantity: number;
-  orderId: number;
-  price: number;
-};
+import { LangOptionType } from "@/types/custom-type";
 
 const ProfileOrder = ({
   id,
@@ -48,8 +18,11 @@ const ProfileOrder = ({
   createdAt,
   discount,
   onOrderCancel,
-}: OrdersProps) => {
-  const { locale } = useRouter();
+}: OrderProps & {
+  onOrderCancel: (orderId: number) => void;
+}) => {
+  const { locale, query } = useRouter();
+  const { user_id } = query;
   const token = getCookie("authToken");
   const t = useTranslations("Profile");
   const [detailToggle, setDetailToggle] = useState(false);
@@ -57,16 +30,16 @@ const ProfileOrder = ({
   const order_date = dayjs(createdAt).format("YYYY-MM-DD");
 
   const handleDetailedShow = async (id: number) => {
-    // setDetailToggle(!detailToggle);
     if (detailToggle === true) {
       setDetailToggle(false);
       setOrderDetail([]);
       return;
     }
     try {
-      const response = await clientFetch(`/orders/${id}`, {
+      const response = await clientFetch(`/orders/${user_id}/${id}`, {
         token,
       });
+      // console.log(response);
       if (response.success) {
         const order_items = response.data.orderItems;
         setOrderDetail(order_items);
@@ -77,12 +50,6 @@ const ProfileOrder = ({
     }
   };
 
-  // const handleOrderCancel = async (id: number) => {
-  //   console.log(id);
-  //   try {} catch (error) {
-  //     console.log(error)
-  //   }
-  // };
   return (
     <div className={`${detailToggle ? "shadow-md" : ""}`}>
       <button
@@ -96,9 +63,9 @@ const ProfileOrder = ({
         <div>{order_date}</div>
         <div className="hidden md:block">{itemCount}</div>
         <div>{totalPrice}</div>
-        <div>{shipping.title[locale as string as "zh" | "en"]}</div>
+        <div>{shipping.title[locale as string as LangOptionType]}</div>
         <div className="hidden md:block">
-          {payment[locale as string as "zh" | "en"]}
+          {payment[locale as string as LangOptionType]}
         </div>
         <div
           className={`uppercase ${
@@ -124,7 +91,7 @@ const ProfileOrder = ({
         <div className="bg-white rounded-b-sm grid grid-cols-[0.5fr_2fr] gap-4 p-4">
           {discount ? (
             <div className="h-full flex justify-center items-center text-xs md:text-sm">
-              {discount.code}
+              {discount?.code}
             </div>
           ) : (
             <div className="h-full flex justify-center items-center text-xs md:text-sm text-default-gray">
