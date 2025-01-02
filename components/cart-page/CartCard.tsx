@@ -16,12 +16,12 @@ const CartCard = () => {
   };
 
   useEffect(() => {
-    for (const key in cardInfo) {
-      if (cardInfo[key] === "") {
-        dispatch(updatedFormValidation({ type: "cardInfo", value: false }));
-      }
-    }
-    dispatch(updatedFormValidation({ type: "cardInfo", value: true }));
+    const hasEmptyFields = Object.values(cardInfo).some(
+      (value) => value === ""
+    );
+    dispatch(
+      updatedFormValidation({ type: "cardInfo", value: !hasEmptyFields })
+    );
   }, [cardInfo]);
   return (
     <div className="flex flex-col gap-4">

@@ -76,9 +76,9 @@ const initialState: OrderState = {
   },
 
   validation: {
-    basicInfo: false,
-    recipientInfo: false,
-    cardInfo: false,
+    basicInfo: true,
+    recipientInfo: true,
+    cardInfo: true,
   },
 };
 

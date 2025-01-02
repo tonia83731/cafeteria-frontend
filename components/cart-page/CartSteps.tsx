@@ -63,10 +63,10 @@ const CartSteps = () => {
             // onClick={handleOrderSubmit}
             disabled={
               formSteps === 0
-                ? validation.basicInfo
+                ? !validation.basicInfo
                 : formSteps === 1
-                ? validation.recipientInfo
-                : validation.cardInfo
+                ? !validation.recipientInfo
+                : !validation.cardInfo
             }
             className="bg-apricot rounded-lg hover:shadow-md hover:font-bold py-1 px-4 disabled:bg-default-gray"
           >

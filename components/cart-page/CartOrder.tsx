@@ -150,9 +150,9 @@ const CartOrder = () => {
 
   useEffect(() => {
     if (basicInfo.shipping && basicInfo.payment) {
-      dispatch(updatedFormValidation({ type: "basicInfo", value: true }));
-    } else {
       dispatch(updatedFormValidation({ type: "basicInfo", value: false }));
+    } else {
+      dispatch(updatedFormValidation({ type: "basicInfo", value: true }));
     }
   }, [basicInfo.shipping, basicInfo.payment]);
 

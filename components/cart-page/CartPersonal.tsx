@@ -21,14 +21,13 @@ const CartPersonal = () => {
   };
 
   useEffect(() => {
-    for (const key in recipientInfo) {
-      if (recipientInfo[key] === "") {
-        dispatch(
-          updatedFormValidation({ type: "recipientInfo", value: false })
-        );
-      }
-    }
-    dispatch(updatedFormValidation({ type: "recipientInfo", value: true }));
+    const hasEmptyFields = Object.values(recipientInfo).some(
+      (value) => value === ""
+    );
+    // console.log(hasEmptyFields);
+    dispatch(
+      updatedFormValidation({ type: "recipientInfo", value: !hasEmptyFields })
+    );
   }, [recipientInfo]);
 
   return (
