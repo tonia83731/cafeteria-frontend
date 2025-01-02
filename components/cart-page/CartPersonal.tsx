@@ -69,8 +69,11 @@ const CartPersonal = () => {
           id="sync"
           type="checkbox"
           className="w-4 h-4 accent-apricot"
-          checked={!syncChecked}
-          onChange={() => dispatch(updatedSyncChecked())}
+          checked={syncChecked}
+          onChange={(e) => {
+            const checked = e.target.checked;
+            dispatch(updatedSyncChecked({ checked }));
+          }}
         />
         <label htmlFor="sync">{t("input.sync")}</label>
       </div>

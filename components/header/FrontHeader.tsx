@@ -16,6 +16,7 @@ import { FaHeart } from "react-icons/fa6";
 
 import TopHeader from "./TopHeader";
 import SideHeader from "./SideHeader";
+import { getQtyCount } from "@/slices/orderSlice";
 
 export type NavLinkProps = {
   title: string;
@@ -44,7 +45,7 @@ const FrontHeader = () => {
   // console.log(token);
   const dispatch = useDispatch();
   const { isAuth, userId } = useSelector((state: RootState) => state.auth);
-
+  const { cartTotalQty } = useSelector((state: RootState) => state.order);
   const handleSignOut = () => {
     dispatch(userSignOut());
     dispatch(
@@ -86,7 +87,7 @@ const FrontHeader = () => {
         isHidden: !isAuth,
       },
       {
-        title: t("cart"),
+        title: `${t("cart")} *${cartTotalQty}`,
         href: isAuth && userId ? `/${userId}/carts` : "/",
         icon: <FaCartShopping />,
         position: 2,
@@ -107,7 +108,7 @@ const FrontHeader = () => {
         isHidden: false,
       },
     ],
-    [t, isAuth, userId]
+    [t, isAuth, userId, cartTotalQty]
   );
 
   useEffect(() => {
@@ -131,8 +132,10 @@ const FrontHeader = () => {
           );
           return;
         }
-        const { isAuth, user } = response;
+        const { isAuth, user, cartQty } = response;
+        // console.log(cartQty)
         dispatch(updatedAuthStatus({ isAuth, user }));
+        dispatch(getQtyCount({ count: cartQty }));
       } catch (error) {
         console.log(error);
       }

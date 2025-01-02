@@ -26,7 +26,7 @@ const Pagination = ({
       {pages.map((page) => {
         return (
           <button
-            key="page"
+            key={`page-${page}`}
             className={`border rounded-md w-7 h-7 flex justify-center items-center disabled:bg-default-gray disabled:text-white disabled:border-0 ${
               currPage === page
                 ? "border-apricot text-apricot font-bold"

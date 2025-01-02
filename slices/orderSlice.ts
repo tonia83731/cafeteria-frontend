@@ -5,14 +5,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface OrderState {
   cartLists: CartItemProps[];
-  // editProduct: {
-  //   id: number | null;
-  //   quantity: number;
-  //   sizeId: number | null;
-  //   iceId: number | null;
-  //   sugarId: number | null;
-  //   item_total: number;
-  // };
+  cartTotalQty: number;
   price: {
     productPrice: number;
     shippingPrice: number;
@@ -53,6 +46,7 @@ interface OrderState {
 
 const initialState: OrderState = {
   cartLists: [],
+  cartTotalQty: 0,
   price: {
     productPrice: 0,
     shippingPrice: 0,
@@ -61,7 +55,6 @@ const initialState: OrderState = {
   },
   formSteps: 0,
   orderersInfo: null,
-
   basicInfo: {
     shipping: null,
     payment: null,
@@ -106,19 +99,20 @@ const orderSlice = createSlice({
       const { status } = actions.payload;
       state.couponAvailable = status;
     },
-    updatedSyncChecked(state) {
-      state.syncChecked = !state.syncChecked;
-      if (state.syncChecked) {
-        state.recipientInfo = {
-          name: "",
-          phone: "",
-          address: "",
-        };
-      } else if (state.orderersInfo) {
+    updatedSyncChecked(state, actions) {
+      const { checked } = actions.payload;
+      state.syncChecked = checked;
+      if (checked && state.orderersInfo) {
         state.recipientInfo = {
           name: state.orderersInfo.name || "",
           phone: state.orderersInfo.phone || "",
           address: state.orderersInfo.address || "",
+        };
+      } else {
+        state.recipientInfo = {
+          name: "",
+          phone: "",
+          address: "",
         };
       }
     },
@@ -165,6 +159,11 @@ const orderSlice = createSlice({
     getCartLists(state, actions) {
       const { data } = actions.payload;
       state.cartLists = data;
+      // state.cartTotalQty = count;
+    },
+    getQtyCount(state, actions) {
+      const { count } = actions.payload;
+      state.cartTotalQty = count;
     },
   },
 });
@@ -178,5 +177,6 @@ export const {
   updatedFormValidation,
   getOrderersInfo,
   getCartLists,
+  getQtyCount,
 } = orderSlice.actions;
 export default orderSlice.reducer;

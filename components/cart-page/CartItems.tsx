@@ -22,7 +22,10 @@ const CartItems = ({
   ice,
   quantity,
   total,
-}: CartItemProps) => {
+  onProductDelete,
+}: CartItemProps & {
+  onProductDelete: (id: number) => void;
+}) => {
   const t = useTranslations("Cart");
   const token = getCookie("authToken");
   const dispatch = useDispatch();
@@ -31,7 +34,9 @@ const CartItems = ({
   const { sizesOptions, icesOptions, sugarsOptions } = useSelector(
     (state: RootState) => state.custom
   );
-  const { cartLists } = useSelector((state: RootState) => state.order);
+  const { cartLists, cartTotalQty } = useSelector(
+    (state: RootState) => state.order
+  );
 
   const tag_style =
     "bg-moss text-white text-xs py-1.5 lg:text-base rounded-md text-center";
@@ -45,79 +50,73 @@ const CartItems = ({
   });
 
   const [editToggle, setEditToggle] = useState(false);
-  const handleUpdateQuantity = (type: "plus" | "minus") => {
-    if (type === "plus") {
-      const curr_price = (customOptions.quantity + 1) * product.price;
 
-      setCustomOptions((prev) => ({
-        ...prev,
-        quantity: prev.quantity + 1,
-        total: curr_price,
-      }));
-    } else {
-      if (quantity === 1) {
-        // handleProductDelete(id)
-        return;
-      }
-      const curr_price = (customOptions.quantity - 1) * product.price;
-      setCustomOptions((prev) => ({
-        ...prev,
-        quantity: prev.quantity - 1,
-        total: curr_price,
-      }));
-    }
-  };
-
-  const handleCartItemEdit = () => {
-    if (sizeId && sugarId && iceId) {
-      setEditToggle(true);
-    } else {
-      handleProductEdit(id, customOptions);
-    }
-  };
-
-  const handleProductEdit = async (id: number, body: any) => {
+  const handleUpdatedQuantity = async (type: "plus" | "minus") => {
+    const updated_qty =
+      type === "plus" ? customOptions.quantity + 1 : customOptions.quantity - 1;
+    const updated_total = product.price * updated_qty;
     try {
-      const response = await clientFetch(`/carts/${user_id}/${id}`, {
-        method: "PUT",
+      const response = await clientFetch(`/carts/${user_id}/${id}/quantity`, {
+        method: "PATCH",
         token,
-        body,
+        body: {
+          quantity: updated_qty,
+          total: updated_total,
+        },
       });
-      if (!response.success) {
-        toast.error(t("message.edit-error"));
-        return;
-      }
 
-      const update_products = cartLists.map((item) => {
-        return item.id === id ? response.data : item;
-      });
-      dispatch(getCartLists({ data: update_products }));
-      toast.success(t("message.edit-success"));
+      if (!response.success) return;
+
+      setCustomOptions((prev) => ({
+        ...prev,
+        quantity: updated_qty,
+        total: updated_total,
+      }));
+
+      const updated_cartlist = cartLists.map((item) =>
+        item.id === id
+          ? { ...item, quantity: updated_qty, total: updated_total }
+          : item
+      );
+      const count = type === "plus" ? cartTotalQty + 1 : cartTotalQty - 1;
+      const totalPrice = updated_cartlist.reduce(
+        (accu, curr) => accu + curr.total,
+        0
+      );
+      dispatch(getCartLists({ data: updated_cartlist, count }));
+      dispatch(updatedOrderPrice({ name: "productPrice", value: totalPrice }));
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleProductDelete = async (id: number) => {
+  const handleProductEdit = async (cartItemId: number, body: any) => {
     try {
-      const response = await clientFetch(`/carts/${user_id}/${id}`, {
-        method: "DELETE",
-        token,
-      });
+      const response = await clientFetch(
+        `/carts/${user_id}/${cartItemId}/custom`,
+        {
+          method: "PATCH",
+          token,
+          body,
+        }
+      );
       if (!response.success) {
-        toast.error(t("message.delete-error"));
+        toast.error(t("message.edit-error"));
         return;
       }
 
-      const updated_cart_items = cartLists.filter((item) => item.id !== id);
-      const total = updated_cart_items.reduce(
-        (acc, curr) => acc + curr.total,
-        0
+      const updatedProduct = response.data;
+      const updatedCart = cartLists.map((item) =>
+        item.id === cartItemId ? { ...item, ...updatedProduct } : item
       );
 
-      dispatch(getCartLists({ data: updated_cart_items }));
-      dispatch(updatedOrderPrice({ name: "productPrice", value: total }));
-      toast.success(t("message.delete-success"));
+      const totalPrice = updatedCart.reduce((acc, curr) => acc + curr.total, 0);
+
+      dispatch(getCartLists({ data: updatedCart }));
+      dispatch(updatedOrderPrice({ name: "productPrice", value: totalPrice }));
+
+      toast.success(t("message.edit-success"));
+      setEditToggle(false);
     } catch (error) {
       console.log(error);
     }
@@ -179,23 +178,29 @@ const CartItems = ({
             <p className={tag_style}>{ice[locale as LangOptionType]}</p>
           )}
         </div>
-        <div className="w-full flex justify-between gap-8">
-          <div className="md:w-1/2">
+        <div className="w-full grid grid-cols-3 gap-2 md:flex md:justify-between md:gap-8">
+          <div className="col-start-1 md:w-1/2">
             <QuantityBox
               quantity={customOptions.quantity}
-              onQuantityClick={handleUpdateQuantity}
+              onQuantityClick={handleUpdatedQuantity}
             />
           </div>
-          <div className="w-full md:w-1/3 text-white grid grid-cols-2 gap-2">
+          <div className="w-full col-start-3 md:w-1/3 text-white grid grid-cols-2 gap-2">
+            {(product.categoryId === 3 || product.categoryId === 4) && (
+              <button
+                onClick={() => setEditToggle(true)}
+                className="bg-apricot w-full rounded-lg hover:drop-shadow-lg py-1"
+              >
+                {t("button.edit")}
+              </button>
+            )}
             <button
-              onClick={handleCartItemEdit}
-              className="bg-apricot w-full rounded-lg hover:drop-shadow-lg py-1"
-            >
-              {t("button.edit")}
-            </button>
-            <button
-              onClick={() => handleProductDelete(id)}
-              className="bg-default-gray w-full rounded-lg hover:drop-shadow-lg py-1"
+              onClick={() => onProductDelete(id)}
+              className={`bg-default-gray w-full rounded-lg hover:drop-shadow-lg py-1 ${
+                product.categoryId !== 3 &&
+                product.categoryId !== 4 &&
+                "col-start-2"
+              }`}
             >
               {t("button.delete")}
             </button>
@@ -298,17 +303,20 @@ const CartItems = ({
           <div className="w-full flex justify-end">
             <div className="w-full md:w-1/3 text-white grid grid-cols-2 gap-2">
               <button
-                onClick={() => {
-                  handleProductEdit(id, customOptions);
-                  setEditToggle(false);
-                }}
-                className="bg-apricot w-full rounded-lg hover:drop-shadow-lg py-1.5"
+                onClick={() => handleProductEdit(id, customOptions)}
+                disabled={
+                  customOptions.sizeId === sizeId &&
+                  customOptions.sugarId === sugarId &&
+                  customOptions.iceId === iceId
+                }
+                className="bg-apricot w-full rounded-lg hover:shadow-lg py-1.5 disabled:hover:shadow-none disabled:bg-default-gray disabled:text-white"
               >
                 {t("button.confirm")}
               </button>
+
               <button
                 onClick={handleEditCancel}
-                className="bg-default-gray w-full rounded-lg hover:drop-shadow-lg py-1.5"
+                className="bg-default-gray w-full rounded-lg hover:shadow-lg py-1.5"
               >
                 {t("button.cancel")}
               </button>

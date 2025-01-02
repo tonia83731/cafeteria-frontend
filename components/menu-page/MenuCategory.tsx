@@ -37,7 +37,7 @@ const MenuCategory = ({
               id={code}
               type="radio"
               name="category"
-              value={id}
+              value={id || ""}
               className="hidden"
               onChange={() => onSelectChange(id)}
               checked={selectCategory === id}

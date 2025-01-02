@@ -12,8 +12,9 @@ import { clientFetch } from "@/lib/fetch";
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { getQtyCount } from "@/slices/orderSlice";
 
 const MenuProduct = ({
   id,
@@ -28,10 +29,13 @@ const MenuProduct = ({
 }: MenuProductsProps) => {
   const token = getCookie("authToken");
   const t = useTranslations("Menu");
+  const dispatch = useDispatch();
   const { userId } = useSelector((state: RootState) => state.auth);
   const { sizesOptions, icesOptions, sugarsOptions } = useSelector(
     (state: RootState) => state.custom
   );
+
+  const { cartTotalQty } = useSelector((state: RootState) => state.order);
   const [quantity, setQuantity] = useState(0);
   const [authoToggle, setAuthToggle] = useState(false);
   const [optionToggle, setOptionToggle] = useState(false);
@@ -78,6 +82,7 @@ const MenuProduct = ({
       });
 
       if (response.success) {
+        dispatch(getQtyCount({ count: cartTotalQty + quantity }));
         handleSetDefault();
         setQuantity(0);
         setOptionToggle(false);
@@ -291,16 +296,16 @@ const MenuProduct = ({
           isOpen={authoToggle}
         >
           <div>{t("auth.message")}</div>
-          <footer className="">
+          <footer className="grid grid-cols-2 gap-4">
             <Link
               href="/signin"
-              className="bg-apricot text-white w-full h-9 md:h-full rounded-lg hover:shadow-md"
+              className="bg-apricot text-white w-full h-9 leading-9 md:h-full md:leading-normal rounded-lg hover:shadow-md text-center md:py-1.5"
             >
               {t("auth.to-signin")}
             </Link>
             <button
               onClick={() => setAuthToggle(false)}
-              className="bg-moss-60 text-white w-full h-9 md:h-full rounded-lg"
+              className="bg-moss-60 text-white w-full h-9 md:h-full rounded-lg hover:shadow-md md:py-1.5"
             >
               {t("button.cancel")}
             </button>

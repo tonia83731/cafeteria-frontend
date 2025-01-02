@@ -2,12 +2,13 @@ import { MultiLangProps } from "./default";
 export type CartItemProps = {
   id: number;
   cartId: number;
-  productId: number;
+  // productId: number;
   product: {
     id: number;
     title: MultiLangProps;
     image: string;
     price: number;
+    categoryId: number;
   };
   size: {
     title: MultiLangProps;

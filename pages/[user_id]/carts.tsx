@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { GetServerSideProps } from "next";
 import { useTranslations } from "next-intl";
-import { authFetch } from "@/lib/fetch";
+import { authFetch, clientFetch } from "@/lib/fetch";
 import FrontLayout from "@/components/layout/FrontLayout";
 import CartItems from "@/components/cart-page/CartItems";
 import CartCalculate from "@/components/cart-page/CartCalculate";
@@ -20,16 +20,21 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCartLists,
   getOrderersInfo,
+  getQtyCount,
   updatedOrderPrice,
 } from "@/slices/orderSlice";
 import { updatedCustomOptions, updateOrderOptions } from "@/slices/customSlice";
 import { ShippingProps } from "@/types/custom-type";
 import { UserProfileType } from "@/types/user-auth.type";
 import { RootState } from "@/store";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 interface CartPageData {
   userInfo: UserProfileType | null;
   cartItem: CartItemProps[];
+  cartItemQty: number;
   total: number;
   shippings: ShippingProps[];
   payments: PaymentProps[];
@@ -43,19 +48,55 @@ const CartPage = ({
   shippings,
   payments,
   cartItem,
+  cartItemQty,
   total,
   sizes,
   sugars,
   ices,
 }: CartPageData) => {
   const t = useTranslations("Cart");
+  const token = getCookie("authToken");
+  const { query } = useRouter();
+  const { user_id } = query;
   const dispatch = useDispatch();
   const { cartLists, price } = useSelector((state: RootState) => state.order);
 
+  const handleProductDelete = async (id: number) => {
+    try {
+      const response = await clientFetch(`/carts/${user_id}/${id}`, {
+        method: "DELETE",
+        token,
+      });
+      if (!response.success) {
+        toast.error(t("message.delete-error"));
+        return;
+      }
+
+      const updated_cart_items = cartLists.filter((item) => item.id !== id);
+      const updated_count = updated_cart_items.reduce(
+        (acc, curr) => acc + curr.quantity,
+        0
+      );
+      const total = updated_cart_items.reduce(
+        (acc, curr) => acc + curr.total,
+        0
+      );
+
+      dispatch(
+        getCartLists({ data: updated_cart_items, count: updated_count })
+      );
+      dispatch(updatedOrderPrice({ name: "productPrice", value: total }));
+      toast.success(t("message.delete-success"));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
+    dispatch(getCartLists({ data: cartItem }));
+    dispatch(getQtyCount({ count: cartItemQty }));
     dispatch(getOrderersInfo({ info: userInfo }));
     dispatch(updateOrderOptions({ shipping: shippings, payment: payments }));
-    dispatch(getCartLists({ data: cartItem }));
     dispatch(updatedOrderPrice({ name: "productPrice", value: total }));
     dispatch(
       updatedCustomOptions({
@@ -64,10 +105,21 @@ const CartPage = ({
         sugars,
       })
     );
-  }, []);
+  }, [
+    cartItem,
+    cartItemQty,
+    userInfo,
+    shippings,
+    payments,
+    total,
+    sizes,
+    ices,
+    sugars,
+    dispatch,
+  ]);
 
   useEffect(() => {
-    const tax = price.productPrice * 0.1;
+    const tax = Math.ceil(price.productPrice * 0.1);
     dispatch(updatedOrderPrice({ name: "taxPrice", value: tax }));
   }, [price.productPrice]);
   useEffect(() => {
@@ -83,7 +135,7 @@ const CartPage = ({
             <CartItems
               {...items}
               key={`cartitems-${items.id}`}
-              // onDeleteClick={handleDeleteClick}
+              onProductDelete={handleProductDelete}
             />
           );
         })}
@@ -131,10 +183,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       authFetch(context, "/payments", "GET"),
     ]);
 
+    // console.log(cart);
+
     return {
       props: {
         userInfo: user.data,
         cartItem: cart.success ? cart.data.cartItems : [],
+        cartItemQty: cart.success ? cart.data.cartItems.length : 0,
         total: cart.success ? cart.data.total : 0,
         shippings: shipping.success ? shipping.data : [],
         payments: payment.success ? payment.data : [],
@@ -163,6 +218,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       props: {
         userInfo: null,
         cartItem: [],
+        cartItemQty: 0,
         total: 0,
         shippings: [],
         payments: [],

@@ -51,6 +51,7 @@ const MenuPage = ({
   const [currPage, setCurrPage] = useState(pagination?.currentPage | 1);
   const [totalPage, setTotalPage] = useState(pagination?.totalPages | 1);
   const [productLists, setProductLists] = useState(products);
+  console.log(products);
 
   const handleCategorySelect = async (categoryId: number | null) => {
     if (!categoryId) {
