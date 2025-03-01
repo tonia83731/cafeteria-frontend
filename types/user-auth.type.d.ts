@@ -8,7 +8,6 @@ export type SignupInputProps = {
   password: string;
   email: string;
   account: string;
-  phone: string;
 };
 
 export type UserInputProps = {

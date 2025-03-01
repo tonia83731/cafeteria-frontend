@@ -119,6 +119,11 @@
     "Profile": {
         "title": "Profile",
         "language": "Language",
+        "invoice": "Invoice",
+        "detail": "Detail",
+        "delivery": "The product has been shipped. Please have your cash ready.",
+        "pickup": "The product is ready for pickup.",
+        "last-update": "Last updated",
         "sub-header": {
             "settings": "Settings",
             "orders": "Orders",
@@ -160,12 +165,25 @@
     "Cart": {
         "title": "Cart",
         "calculate": "Calculation",
-        "order": "Order Info.",
-        "personal": "Personal Info.",
-        "orderers": "Orderer",
         "payment": "Payment Info.",
-        "shipping-method": "Shipping Method",
-        "payment-method": "Payment Method",
+        "shipping-method": "Shipping",
+        "payment-method": "Payment",
+        "orderer": "Orderer Info.",
+        "order-input": {
+            "name": "Name",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "no-content": "No data"
+        },
+        "recipient": "Recipient Info.",
+        "recipient-input": {
+            "name": "Name",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "sync": "Same as the orderer"
+        },
         "button":{
             "edit": "Edit",
             "delete": "Delete",
@@ -190,8 +208,8 @@
         },
         "price": {
             "product-price": "Items",
-            "shipping-price": "Shipping",
             "tax-price": "TAX(10%)",
+            "discount-price": "Discounts",
             "total": "Total"
         },
         "message": {
@@ -206,4 +224,5 @@
             "sugar-title": "Sigar Options"
         }
     }
+    
 }

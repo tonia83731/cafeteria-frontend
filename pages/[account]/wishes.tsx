@@ -2,41 +2,36 @@ import { useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useTranslations } from "next-intl";
-import { getCookie } from "cookies-next";
 import FrontLayout from "@/components/layout/FrontLayout";
 import WishProduct from "@/components/wish-page/WishProduct";
-import { clientFetch, authFetch } from "@/lib/fetch";
-import { toast } from "react-toastify";
 import { WishProductProps } from "@/types/menu-type";
+import { authFetch } from "@/lib/server-fetch";
+import { clientFetch } from "@/lib/client-fetch";
 
 interface WishPageData {
   wishes: WishProductProps[];
   userId: number | null;
 }
 
-const WishPage = ({ wishes, userId }: WishPageData) => {
+const WishPage = ({ wishes }: WishPageData) => {
   const t = useTranslations("Wish");
-  const token = getCookie("authToken");
-  const { locale } = useRouter();
-  const [wishProducts, setWishProducts] = useState(wishes);
+  const { locale, query } = useRouter();
+  const { account } = query;
+  const [wishProducts, setWishProducts] = useState<WishProductProps[]>(wishes);
 
   const handleWishRemove = async (productId: number) => {
     try {
       const response = await clientFetch(
-        `/wishes/${userId}/${productId}/remove`,
-        {
-          method: "DELETE",
-          token,
-        }
+        `/wishes/${account}/${productId}/remove`,
+        "DELETE",
+        true
       );
-      if (response.success) {
-        toast.success(t("message.removed-wish-success"));
-        const updated_products = wishProducts.filter(
+
+      if (response?.success) {
+        const updatedWishProducts = wishProducts.filter(
           (product) => product.id !== productId
         );
-        setWishProducts(updated_products);
-      } else {
-        toast.error(t("message.removed-wish-failed"));
+        setWishProducts(updatedWishProducts);
       }
     } catch (error) {
       console.log(error);
@@ -63,7 +58,7 @@ const WishPage = ({ wishes, userId }: WishPageData) => {
 export default WishPage;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { user_id } = context.query;
+  const { account } = context.query;
 
   try {
     const authChecked = await authFetch(context, `/users/checked-auth`, "GET");
@@ -79,14 +74,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const response = await authFetch(
       context,
-      `/wishes/${user_id}/all-products`,
+      `/wishes/${account}/products`,
       "GET"
     );
 
+    let wishes = [];
+    if (response.success) {
+      const data = response.data;
+
+      wishes = data.map((wish: any) => {
+        return { ...wish, isWished: true };
+      });
+    }
+
     return {
       props: {
-        wishes: response.success ? response.data : [],
-        userId: user_id,
+        wishes,
         messages: (await import(`../../messages/${context.locale}.json`))
           .default,
       },
@@ -96,7 +99,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         wishes: [],
-        userId: null,
         messages: (await import(`../../messages/${context.locale}.json`))
           .default,
       },

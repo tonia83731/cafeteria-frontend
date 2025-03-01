@@ -1,17 +1,16 @@
-import { MultiLangProps } from "./default-input";
-
 export type CouponProps = {
   id: number;
   userId: number;
   couponId: number;
   isApplied: boolean;
   code: string;
-  title: MultiLangProps;
-  description: MultiLangProps;
-  discountType: string;
-  discountValue: string;
-  startDate: string;
-  endDate: string;
+  title: string;
+  title_en: string;
+  description: string;
+  description_en: string;
+  discountType: number;
+  discountValue: number;
+  endDate: number;
   createdAt: string;
   updatedAt: string;
 };

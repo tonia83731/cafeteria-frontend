@@ -120,6 +120,11 @@
     "Profile": {
         "title": "用戶資料",
         "language": "語言選擇",
+        "invoice": "載具發票",
+        "detail": "詳細資料",
+        "delivery": "商品已送出, 請備好您的現金",
+        "pickup": "商品已準備完成",
+        "last-update": "最後更新",
         "sub-header": {
             "settings": "基本設定",
             "orders": "訂單資料",
@@ -163,12 +168,25 @@
     "Cart": {
         "title": "購物車",
         "calculate": "價格計算",
-        "order": "訂單資訊",
-        "personal": "收件人資訊",
-        "orderers": "訂購人",
         "payment": "付款資訊",
         "shipping-method": "運送方式",
         "payment-method": "付款方式",
+        "orderer": "訂購人資料",
+        "order-input": {
+            "name": "姓名",
+            "email": "Email",
+            "phone": "電話",
+            "address": "地址",
+            "no-content": "沒有資料"
+        },
+        "recipient": "收貨人資料",
+        "recipient-input": {
+            "name": "姓名",
+            "email": "Email",
+            "phone": "電話",
+            "address": "地址",
+            "sync": "同訂購人"
+        },       
         "button":{
             "edit": "修改",
             "delete": "刪除",
@@ -193,8 +211,8 @@
         },
         "price": {
             "product-price": "小計",
-            "shipping-price": "運費",
             "tax-price": "TAX(10%)",
+            "discount-price": "折扣",
             "total": "總計"
         },
         "message": {

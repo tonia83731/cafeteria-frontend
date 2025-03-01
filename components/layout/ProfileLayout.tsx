@@ -13,27 +13,27 @@ const ProfileLayout = ({ children }: { children: ReactNode }) => {
   const t = useTranslations("Profile");
   const { asPath } = useRouter();
   // console.log(router);
-  const { isAuth, userId } = useSelector((state: RootState) => state.auth);
+  const { isAuth, userAccount } = useSelector((state: RootState) => state.auth);
 
   const profile_links = useMemo(
     () => [
       {
         title: `${t("sub-header.settings")}`,
-        href: isAuth && userId ? `/${userId}/profile` : "/",
+        href: isAuth && userAccount ? `/${userAccount}/profile` : "/",
         icon: <IoIosSettings />,
       },
       {
         title: `${t("sub-header.orders")}`,
-        href: isAuth && userId ? `/${userId}/profile/orders` : "/",
+        href: isAuth && userAccount ? `/${userAccount}/profile/orders` : "/",
         icon: <FaCartShopping />,
       },
       {
         title: `${t("sub-header.coupons")}`,
-        href: isAuth && userId ? `/${userId}/profile/coupons` : "/",
+        href: isAuth && userAccount ? `/${userAccount}/profile/coupons` : "/",
         icon: <RiCoupon3Fill />,
       },
     ],
-    [isAuth, userId, t]
+    [isAuth, userAccount, t]
   );
 
   return (

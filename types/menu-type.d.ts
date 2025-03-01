@@ -4,12 +4,15 @@ export type CategoryProps = {
   id: number;
   title: MultiLangProps;
   code: string;
+  hasOpts: boolean;
 };
 
 export type MenuProductsProps = {
   id: number;
-  title: MultiLangProps;
-  description: MultiLangProps;
+  title: string;
+  title_en: string;
+  description: string;
+  description_en: string;
   price: number;
   image: string;
   categoryId: number;
@@ -18,8 +21,9 @@ export type MenuProductsProps = {
   sizeOption: number;
   sugarOption: number;
   iceOption: number;
-  isWished: boolean;
-  onWishClick: (productId: number, isWished: boolean) => void;
+  isWished: boolean | null;
+  hasOpts?: boolean;
+  onWishClick: (productId: number, isWished: boolean | null) => void;
 };
 
 export interface MenuPageData {
@@ -32,8 +36,10 @@ export interface MenuPageData {
 
 export type WishProductProps = {
   id: number;
-  title: MultiLangProps;
-  description: MultiLangProps;
+  title: string;
+  title_en: string;
+  description: string;
+  description_en: string;
   price: number;
   categoryId: number;
   image: string;

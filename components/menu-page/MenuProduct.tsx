@@ -8,45 +8,54 @@ import { MenuProductsProps } from "@/types/menu-type";
 import QuantityBox from "../input/QuantityBox";
 import Modal from "../common/Modal";
 import { FaHeart } from "react-icons/fa6";
-import { clientFetch } from "@/lib/fetch";
 import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { sizeOpts, iceOpts, sugarOpts } from "@/data/product-options";
 import { getQtyCount } from "@/slices/orderSlice";
+
+type OptionTypes = {
+  value: number;
+  title: {
+    zh: string;
+    en: string;
+  };
+  price?: number;
+};
 
 const MenuProduct = ({
   id,
   title,
+  title_en,
   description,
+  description_en,
   price,
   image,
   categoryId,
   locale,
   isWished,
+  hasOpts,
   onWishClick,
 }: MenuProductsProps) => {
   const token = getCookie("authToken");
   const t = useTranslations("Menu");
   const dispatch = useDispatch();
-  const { userId } = useSelector((state: RootState) => state.auth);
-  const { sizesOptions, icesOptions, sugarsOptions } = useSelector(
-    (state: RootState) => state.custom
-  );
+  const { isAuth, userAccount } = useSelector((state: RootState) => state.auth);
 
   const { cartTotalQty } = useSelector((state: RootState) => state.order);
   const [quantity, setQuantity] = useState(0);
   const [authoToggle, setAuthToggle] = useState(false);
   const [optionToggle, setOptionToggle] = useState(false);
-  const [sizeOption, setSizeOption] = useState(1);
-  const [iceOption, setIceOption] = useState(1);
-  const [sugarOption, setSugarOption] = useState(1);
+  const [sizeOption, setSizeOption] = useState<OptionTypes>(sizeOpts[0]);
+  const [iceOption, setIceOption] = useState<OptionTypes>(iceOpts[2]);
+  const [sugarOption, setSugarOption] = useState<OptionTypes>(sugarOpts[2]);
 
   const handleSetDefault = () => {
-    setSizeOption(1);
-    setIceOption(1);
-    setSugarOption(1);
+    setSizeOption(sizeOpts[0]);
+    setIceOption(iceOpts[2]);
+    setSugarOption(sugarOpts[2]);
   };
 
   const handleCartToggle = () => {
@@ -58,6 +67,7 @@ const MenuProduct = ({
   };
 
   const handleAddCart = async (id: number, categoryId: number) => {
+    console.log(token);
     if (!token) {
       setAuthToggle(true);
       return;
@@ -69,27 +79,26 @@ const MenuProduct = ({
     const body = {
       productId: id,
       quantity,
-      sizeId: categoryId === 3 || categoryId === 4 ? sizeOption : null,
-      sugarId: categoryId === 3 || categoryId === 4 ? sugarOption : null,
-      iceId: categoryId === 3 || categoryId === 4 ? iceOption : null,
+      size: hasOpts ? sizeOption : null,
+      sugar: hasOpts ? sugarOption : null,
+      ice: hasOpts ? iceOption : null,
     };
 
     try {
-      const response = await clientFetch(`/carts/${userId}/add-cart`, {
-        method: "POST",
-        body,
-        token,
-      });
-
-      if (response.success) {
-        dispatch(getQtyCount({ count: cartTotalQty + quantity }));
-        handleSetDefault();
-        setQuantity(0);
-        setOptionToggle(false);
-        toast.success(t("message.added-success"));
-      } else {
-        toast.error(t("message.added-failed"));
-      }
+      // const response = await clientFetch(`/carts/${userId}/add-cart`, {
+      //   method: "POST",
+      //   body,
+      //   token,
+      // });
+      // if (response.success) {
+      //   dispatch(getQtyCount({ count: cartTotalQty + quantity }));
+      //   handleSetDefault();
+      //   setQuantity(0);
+      //   setOptionToggle(false);
+      //   toast.success(t("message.added-success"));
+      // } else {
+      //   toast.error(t("message.added-failed"));
+      // }
     } catch (error) {
       console.log(error);
     }
@@ -112,28 +121,28 @@ const MenuProduct = ({
           <div className="w-[100px] h-[100px] relative justify-self-center">
             <Image
               src={image}
-              alt={title[locale]}
+              alt={locale === "en" ? title_en : title}
               width={200}
               height={200}
               className="w-[100px] h-[100px] opacity-90 object-cover"
             ></Image>
             <button
-              disabled={!token}
+              disabled={!isAuth}
               onClick={() => onWishClick(id, isWished)}
               className={`absolute top-1 left-1 text-xl ${
                 isWished ? "text-heart" : "text-fern-60"
-              } hover:text-heart-60`}
+              } hover:text-heart-60 disabled:hover:text-fern-60`}
             >
               <FaHeart />
             </button>
           </div>
           <div className="flex flex-col gap-2">
             <div className="text-lg font-bold flex justify-between">
-              <h5>{title[locale]}</h5>
+              <h5>{locale === "en" ? title_en : title}</h5>
               <div className="text-apricot">${price}</div>
             </div>
             <p className="text-xs text-natural md:line-clamp-4">
-              {description[locale]}
+              {locale === "en" ? description_en : description}
             </p>
           </div>
         </div>
@@ -143,7 +152,7 @@ const MenuProduct = ({
             onQuantityClick={handleQuantityClick}
           />
 
-          {categoryId === 3 || categoryId === 4 ? (
+          {hasOpts ? (
             <button
               disabled={quantity === 0}
               onClick={() => handleCartToggle()}
@@ -174,24 +183,24 @@ const MenuProduct = ({
                 {t("custom.size-title")}
               </h5>
               <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-                {sizesOptions.map(({ id, title, price }) => {
+                {sizeOpts.map(({ value, title, price }) => {
                   return (
                     <label
-                      htmlFor={`size-${id}`}
+                      htmlFor={`size-${value}`}
                       className={`w-full ${
-                        sizeOption === id
+                        sizeOption.value === value
                           ? "bg-fern text-white"
                           : "border border-fern text-fern cursor-pointer"
                       } text-center rounded-full py-1 text-xs sm:text-sm`}
-                      key={`size-${id}`}
+                      key={`size-${value}`}
                     >
                       <input
-                        id={`size-${id}`}
+                        id={`size-${value}`}
                         type="radio"
                         className="hidden"
                         name="drinks-size"
-                        onChange={() => setSizeOption(id)}
-                        checked={sizeOption === id}
+                        onChange={() => setSizeOption({ value, title, price })}
+                        checked={sizeOption.value === value}
                       />
                       {title[locale]} (+${price})
                     </label>
@@ -202,24 +211,24 @@ const MenuProduct = ({
             <div className="flex flex-col gap-2">
               <h5 className="font-italiana text-lg">{t("custom.ice-title")}</h5>
               <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-                {icesOptions.map(({ id, title }) => {
+                {iceOpts.map(({ value, title }) => {
                   return (
                     <label
-                      htmlFor={`ice-${id}`}
+                      htmlFor={`ice-${value}`}
                       className={`w-full ${
-                        iceOption === id
+                        iceOption.value === value
                           ? "bg-fern text-white"
                           : "border border-fern text-fern cursor-pointer"
                       } text-center rounded-full py-1 text-xs sm:text-sm`}
-                      key={`ice-${id}`}
+                      key={`ice-${value}`}
                     >
                       <input
                         id={`ice-${id}`}
                         type="radio"
                         className="hidden"
                         name="drinks-size"
-                        onChange={() => setIceOption(id)}
-                        checked={iceOption === id}
+                        onChange={() => setIceOption({ value, title })}
+                        checked={iceOption.value === value}
                       />
                       {title[locale]}
                     </label>
@@ -232,24 +241,24 @@ const MenuProduct = ({
                 {t("custom.sugar-title")}
               </h5>
               <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-                {sugarsOptions.map(({ id, title }) => {
+                {sugarOpts.map(({ value, title }) => {
                   return (
                     <label
-                      htmlFor={`sugar-${id}`}
+                      htmlFor={`sugar-${value}`}
                       className={`w-full ${
-                        sugarOption === id
+                        sugarOption.value === value
                           ? "bg-fern text-white"
                           : "border border-fern text-fern cursor-pointer"
                       } text-center rounded-full py-1 text-xs sm:text-sm`}
-                      key={`sugar-${id}`}
+                      key={`sugar-${value}`}
                     >
                       <input
-                        id={`sugar-${id}`}
+                        id={`sugar-${value}`}
                         type="radio"
                         className="hidden"
                         name="drinks-size"
-                        onChange={() => setSugarOption(id)}
-                        checked={sugarOption === id}
+                        onChange={() => setSugarOption({ value, title })}
+                        checked={sugarOption.value === value}
                       />
                       {title[locale]}
                     </label>
@@ -292,7 +301,10 @@ const MenuProduct = ({
       {authoToggle && (
         <Modal
           title={`${t("auth.title")}`}
-          onClose={() => setAuthToggle(false)}
+          onClose={() => {
+            setQuantity(0);
+            setAuthToggle(false);
+          }}
           isOpen={authoToggle}
         >
           <div>{t("auth.message")}</div>
@@ -304,7 +316,10 @@ const MenuProduct = ({
               {t("auth.to-signin")}
             </Link>
             <button
-              onClick={() => setAuthToggle(false)}
+              onClick={() => {
+                setQuantity(0);
+                setAuthToggle(false);
+              }}
               className="bg-moss-60 text-white w-full h-9 md:h-full rounded-lg hover:shadow-md md:py-1.5"
             >
               {t("button.cancel")}

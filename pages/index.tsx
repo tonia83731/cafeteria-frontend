@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/router";
-import { toast } from "react-toastify";
 
 import HomeLayout from "@/components/layout/HomeLayout";
 import StepSection from "@/components/home-page/StepSection";
 
 export default function Home() {
   const t = useTranslations("Home");
-  const { signin_success, signout_success } = useRouter().query;
+  // const { signin_success, signout_success } = useRouter().query;
 
   const home_link = [
     {
@@ -25,16 +22,6 @@ export default function Home() {
       title: `${t("links.orders")}`,
     },
   ];
-
-  useEffect(() => {
-    if (!signin_success) return;
-    toast.success(`${t("message.signin-success")}`);
-  }, [signin_success]);
-
-  useEffect(() => {
-    if (!signout_success) return;
-    toast.success(`${t("message.signout_success")}`);
-  }, [signout_success]);
 
   return (
     <HomeLayout>

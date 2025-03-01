@@ -2,7 +2,6 @@ import { ReactNode, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
 import { getCookie } from "cookies-next";
-import { clientFetch } from "@/lib/fetch";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { updatedAuthStatus, userSignOut } from "@/slices/authSlice";
@@ -17,6 +16,7 @@ import { FaHeart } from "react-icons/fa6";
 import TopHeader from "./TopHeader";
 import SideHeader from "./SideHeader";
 import { getQtyCount } from "@/slices/orderSlice";
+import { clientFetch } from "@/lib/client-fetch";
 
 export type NavLinkProps = {
   title: string;
@@ -42,9 +42,8 @@ const FrontHeader = () => {
   const t = useTranslations("Header");
   const router = useRouter();
   const token = getCookie("authToken");
-  // console.log(token);
   const dispatch = useDispatch();
-  const { isAuth, userId } = useSelector((state: RootState) => state.auth);
+  const { isAuth, userAccount } = useSelector((state: RootState) => state.auth);
   const { cartTotalQty } = useSelector((state: RootState) => state.order);
   const handleSignOut = () => {
     dispatch(userSignOut());
@@ -53,6 +52,7 @@ const FrontHeader = () => {
         isAuth: false,
         user: {
           id: null,
+          account: null,
           language: "zh",
         },
       })
@@ -81,21 +81,21 @@ const FrontHeader = () => {
       },
       {
         title: t("profile"),
-        href: isAuth && userId ? `/${userId}/profile` : "/",
+        href: isAuth && userAccount ? `/${userAccount}/profile` : "/",
         icon: <TiUser />,
         position: 1,
         isHidden: !isAuth,
       },
       {
         title: `${t("cart")} *${cartTotalQty}`,
-        href: isAuth && userId ? `/${userId}/carts` : "/",
+        href: isAuth && userAccount ? `/${userAccount}/carts` : "/",
         icon: <FaCartShopping />,
         position: 2,
         isHidden: !isAuth,
       },
       {
         title: t("wish"),
-        href: isAuth && userId ? `/${userId}/wishes` : "/",
+        href: isAuth && userAccount ? `/${userAccount}/wishes` : "/",
         icon: <FaHeart />,
         position: 2,
         isHidden: !isAuth,
@@ -108,32 +108,33 @@ const FrontHeader = () => {
         isHidden: false,
       },
     ],
-    [t, isAuth, userId, cartTotalQty]
+    [t, isAuth, userAccount, cartTotalQty]
   );
 
   useEffect(() => {
+    if (router.pathname === "/about") return;
     if (!token) return;
-    // console.log(token);
+
     const checkedAuth = async () => {
       try {
-        const response = await clientFetch("/users/checked-auth", {
-          token,
-        });
-        // console.log("auth-checked", response);
-        if (!response.success) {
+        const response = await clientFetch("/users/checked-auth", "GET", true);
+
+        if (!response) {
           dispatch(
             updatedAuthStatus({
               isAuth: false,
               user: {
                 id: null,
+                account: null,
                 language: "zh",
               },
             })
           );
+          if (router.pathname === "/menut") return;
+          router.push("/");
           return;
         }
         const { isAuth, user, cartQty } = response;
-        // console.log(cartQty)
         dispatch(updatedAuthStatus({ isAuth, user }));
         dispatch(getQtyCount({ count: cartQty }));
       } catch (error) {
@@ -141,7 +142,7 @@ const FrontHeader = () => {
       }
     };
     checkedAuth();
-  }, [token]);
+  }, [token, router]);
 
   return (
     <>

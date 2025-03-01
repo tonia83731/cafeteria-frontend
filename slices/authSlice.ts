@@ -12,6 +12,7 @@ import { LangOptionType } from "@/types/custom-type";
 interface AuthState {
   isAuth: boolean;
   userId: number | null;
+  userAccount: string | null;
   userLanguage: "en" | "zh";
   signinInput: SigninInputProps;
   signupInput: SignupInputProps;
@@ -22,6 +23,7 @@ interface AuthState {
 const initialState: AuthState = {
   isAuth: false,
   userId: null,
+  userAccount: null,
   userLanguage: "zh",
   signinInput: {
     email: "",
@@ -32,7 +34,6 @@ const initialState: AuthState = {
     password: "",
     email: "",
     account: "",
-    phone: "",
   },
   userInput: {
     name: "",
@@ -69,6 +70,7 @@ const authSlice = createSlice({
         isAuth: boolean;
         user: {
           id: number | null;
+          account: string | null;
           language: LangOptionType;
         };
       }>
@@ -76,6 +78,7 @@ const authSlice = createSlice({
       const { isAuth, user } = action.payload;
       state.isAuth = isAuth;
       state.userId = user?.id;
+      state.userAccount = user?.account;
       state.userLanguage = user?.language;
     },
     updatedInputChange(

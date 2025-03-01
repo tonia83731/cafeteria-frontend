@@ -1,5 +1,3 @@
-import { MultiLangProps } from "./default-input";
-
 export type OrderProps = {
   id: number;
   userId: number;
@@ -9,17 +7,14 @@ export type OrderProps = {
   shippingId: number;
   paymentId: number;
   discountId: null | number;
-  totalPrice: number;
-  status: string;
-  payment: MultiLangProps;
-  shipping: {
-    title: MultiLangProps;
-    price: number;
-  };
+  total: number;
+  status: number;
+  payment: number;
+  shipping: number;
   discount: null | {
     code: string;
-    discountType: string;
-    discountValue: string;
+    discountType: number;
+    discountValue: number;
   };
   itemCount: number;
   createdAt: string;
@@ -27,11 +22,15 @@ export type OrderProps = {
 };
 
 export type OrderDetailProps = {
-  product: MultiLangProps;
-  size: MultiLangProps;
-  ice: MultiLangProps;
-  sugar: MultiLangProps;
-  quantity: number;
   orderId: number;
+  productId: number;
+  title: {
+    en: string;
+    zh: string;
+  };
   price: number;
+  size: number;
+  ice: number;
+  sugar: number;
+  quantity: number;
 };

@@ -34,7 +34,8 @@ body::-webkit-scrollbar-thumb {
 }
 
 input,
-textarea {
+textarea,
+select {
   outline: none;
   background-color: transparent;
 }

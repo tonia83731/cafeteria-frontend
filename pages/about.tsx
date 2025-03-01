@@ -2,12 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import Slider from "react-slick";
 import { useTranslations } from "next-intl";
-import { serverFetch } from "@/lib/fetch";
+
 import { RiStarSFill } from "react-icons/ri";
 import FrontLayout from "@/components/layout/FrontLayout";
 import AboutMobileImg from "@/public/images/about_mobile.png";
 import AboutDesktopImg from "@/public/images/about_desktop.png";
 import CommentForm from "@/components/about-page/CommentForm";
+import { serverFetch } from "@/lib/server-fetch";
 
 type CommentsData = {
   id: number;
@@ -25,7 +26,7 @@ interface AboutProps {
 
 const AboutPage = ({ comments }: AboutProps) => {
   const t = useTranslations("About");
-  //   console.log(comments);
+  console.log(comments);
   const settings = {
     dots: false,
     infinite: true,

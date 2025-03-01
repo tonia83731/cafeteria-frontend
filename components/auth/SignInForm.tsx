@@ -2,7 +2,7 @@ import { FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
 import { setCookie } from "cookies-next";
-import { clientFetch } from "@/lib/fetch";
+
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -17,6 +17,7 @@ import {
   updatedInputError,
 } from "@/slices/authSlice";
 import { SigninInputProps } from "../../types/user-auth.type";
+import { clientFetch } from "@/lib/client-fetch";
 
 const SignInForm = () => {
   const t = useTranslations("Sign");
@@ -59,10 +60,7 @@ const SignInForm = () => {
     if (handleInputError(signinInput)) return;
 
     try {
-      const response = await clientFetch("/login", {
-        method: "POST",
-        body: signinInput,
-      });
+      const response = await clientFetch("/login", "POST", false, signinInput);
       if (!response.success) {
         toast.error(`${t("message.signin-false")}`);
         return;

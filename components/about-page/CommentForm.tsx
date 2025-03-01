@@ -2,8 +2,9 @@ import { useTranslations } from "next-intl";
 import { FormEvent, useRef, useState } from "react";
 import validator from "validator";
 import { FaStar, FaRegStar } from "react-icons/fa";
-import { clientFetch } from "@/lib/fetch";
+
 import { toast } from "react-toastify";
+import { clientFetch } from "@/lib/client-fetch";
 
 const CommentForm = () => {
   const t = useTranslations("About");
@@ -38,7 +39,7 @@ const CommentForm = () => {
     const name = nameRef.current?.value;
     const email = emailRef.current?.value;
     const comment = commentRef.current?.value;
-    // console.log(name, email, comment, rating);
+
     if (!name || !email || !rating) {
       setIsError({
         status: true,
@@ -66,14 +67,9 @@ const CommentForm = () => {
       rate: rating,
       comment: comment ? comment : "",
     };
-    // console.log(body);
 
     try {
-      const response = await clientFetch("/comments", {
-        method: "POST",
-        body,
-      });
-      //   console.log(response);
+      const response = await clientFetch("/comments", "POST", false, body);
 
       if (response.success) {
         toast.success(`${t("success")}`);

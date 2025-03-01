@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslations } from "next-intl";
-import { serverFetch, clientFetch } from "@/lib/fetch";
+
 import FrontLayout from "@/components/layout/FrontLayout";
 import MenuCategory from "@/components/menu-page/MenuCategory";
 import MenuSearch from "@/components/menu-page/MenuSearch";
@@ -9,19 +9,16 @@ import MenuProduct from "@/components/menu-page/MenuProduct";
 import { CategoryProps, MenuProductsProps } from "@/types/menu-type";
 import { PaginationProps } from "@/types/page";
 import { getCookie } from "cookies-next";
-import { toast } from "react-toastify";
 import Pagination from "@/components/common/Pagination";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import {
-  IceCustomProps,
   LangOptionType,
   OtherOptionProps,
-  SizeCustomProps,
   SizeOptionProps,
-  SugarCustomProps,
 } from "@/types/custom-type";
-import { updatedCustomOptions } from "@/slices/customSlice";
+import { serverFetch } from "@/lib/server-fetch";
+import { clientFetch } from "@/lib/client-fetch";
 
 export interface MenuPageData {
   categories: CategoryProps[];
@@ -32,26 +29,17 @@ export interface MenuPageData {
   pagination: PaginationProps;
 }
 
-const MenuPage = ({
-  categories,
-  products,
-  sizes,
-  ices,
-  sugars,
-  pagination,
-}: MenuPageData) => {
+const MenuPage = ({ categories, products, pagination }: MenuPageData) => {
   const t = useTranslations("Menu");
   const token = getCookie("authToken");
-  const dispatch = useDispatch();
   const { locale } = useRouter();
-  const { userId } = useSelector((state: RootState) => state.auth);
+  const { isAuth, userAccount } = useSelector((state: RootState) => state.auth);
 
   const [selectCategory, setSelectCategory] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState("");
   const [currPage, setCurrPage] = useState(pagination?.currentPage | 1);
   const [totalPage, setTotalPage] = useState(pagination?.totalPages | 1);
   const [productLists, setProductLists] = useState(products);
-  console.log(products);
 
   const handleCategorySelect = async (categoryId: number | null) => {
     if (!categoryId) {
@@ -62,10 +50,12 @@ const MenuPage = ({
       return;
     }
 
-    const url = `/products?page=1&categoryId=${categoryId}`;
+    const url = isAuth
+      ? `/products-with-wishes?page=1&categoryId=${categoryId}`
+      : `/products?page=1&categoryId=${categoryId}`;
 
     try {
-      const response = await clientFetch(url);
+      const response = await clientFetch(url, "GET", isAuth);
       if (response.success) {
         const { products, pagination } = response.data;
         setProductLists(products);
@@ -80,10 +70,12 @@ const MenuPage = ({
 
   const handleArrowClick = async (type: "prev" | "next") => {
     const page = type === "prev" ? currPage - 1 : currPage + 1;
-    let url = `/products?page=${page}`;
+    let url = isAuth
+      ? `/products-with-wishes?page=${page}`
+      : `/products?page=${page}`;
     if (selectCategory) url += `&categoryId=${selectCategory}`;
     try {
-      const response = await clientFetch(url);
+      const response = await clientFetch(url, "GET", isAuth);
       if (response.success) {
         setProductLists(response.data.products);
         setCurrPage(page);
@@ -94,10 +86,12 @@ const MenuPage = ({
   };
 
   const handleNumClick = async (num: number) => {
-    let url = `/products?page=${num}`;
+    let url = isAuth
+      ? `/products-with-wishes?page=${num}`
+      : `/products?page=${num}`;
     if (selectCategory) url += `&categoryId=${selectCategory}`;
     try {
-      const response = await clientFetch(url);
+      const response = await clientFetch(url, "GET", isAuth);
       if (response.success) {
         setProductLists(response.data.products);
         setCurrPage(num);
@@ -120,88 +114,77 @@ const MenuPage = ({
     setProductLists(products);
   };
 
-  const handleWishClick = async (productId: number, isWished: boolean) => {
-    if (!token || !userId) {
-      return;
-    }
-
-    const updatedProductList = [...productLists];
-    const productIndex = updatedProductList.findIndex(
-      (p) => p.id === productId
-    );
+  const handleWishClick = async (
+    productId: number,
+    isWished: boolean | null
+  ) => {
+    console.log("click");
+    console.log(productId, isWished);
 
     if (!isWished) {
-      try {
-        const response = await clientFetch(
-          `/wishes/${userId}/${productId}/add`,
-          {
-            method: "POST",
-            token,
-          }
-        );
-        if (response.success) {
-          toast.success(t("message.added-wish-success"));
-          updatedProductList[productIndex].isWished = true;
-        } else {
-          toast.error(t("message.added-wish-failed"));
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      await addToWish(productId);
     } else {
-      try {
-        const response = await clientFetch(
-          `/wishes/${userId}/${productId}/remove`,
-          {
-            method: "DELETE",
-            token,
-          }
-        );
-        if (response.success) {
-          toast.success(t("message.removed-wish-success"));
-          updatedProductList[productIndex].isWished = false;
-        } else {
-          toast.error(t("message.removed-wish-failed"));
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      await removeFromWish(productId);
     }
-    setProductLists(updatedProductList);
+  };
+
+  const addToWish = async (productId: number) => {
+    if (!userAccount) return;
+    try {
+      const response = await clientFetch(
+        `/wishes/${userAccount}/${productId}/add`,
+        "POST",
+        true
+      );
+
+      if (response?.success) {
+        const updatedProducts = productLists.map((product) => {
+          return product.id === productId
+            ? { ...product, isWished: true }
+            : product;
+        });
+        setProductLists(updatedProducts);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const removeFromWish = async (productId: number) => {
+    if (!userAccount) return;
+    try {
+      const response = await clientFetch(
+        `/wishes/${userAccount}/${productId}/remove`,
+        "DELETE",
+        true
+      );
+      if (response?.success) {
+        const updatedProducts = productLists.map((product) => {
+          return product.id === productId
+            ? { ...product, isWished: false }
+            : product;
+        });
+        setProductLists(updatedProducts);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    if (!token || !userId) return;
-    const fetchWishes = async () => {
+    if (!token) return;
+    const fetchProductWithWish = async () => {
       try {
-        const response = await clientFetch(`/wishes/${userId}/products`, {
-          token,
-        });
-        if (response.success) {
-          const data = response.data;
-          const updatedProductList = productLists.map((product) => ({
-            ...product,
-            isWished: data.some((wish: any) => wish.productId === product.id),
-          }));
-          setProductLists(updatedProductList);
+        const res = await clientFetch(`/products-with-wishes`, "GET", true);
+        if (res?.success) {
+          const data = res?.data.products;
+          setProductLists(data);
         }
       } catch (error) {
         console.log(error);
       }
     };
-    fetchWishes();
-  }, [token, userId]);
-
-  useEffect(() => {
-    if (sizes.length === 0 || sugars.length === 0 || ices.length === 0) return;
-    dispatch(
-      updatedCustomOptions({
-        sizes,
-        ices,
-        sugars,
-      })
-    );
-  }, [sizes, sugars, ices]);
+    fetchProductWithWish();
+  }, [token]);
 
   return (
     <FrontLayout title={t("title")}>
@@ -221,9 +204,14 @@ const MenuPage = ({
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {productLists.map((product) => {
+          const category = categories.find(
+            (cate) => cate.id === product.categoryId
+          );
+          const hasOpts = category && category.hasOpts;
           return (
             <MenuProduct
               {...product}
+              hasOpts={hasOpts}
               key={product.id}
               locale={locale as string as LangOptionType}
               onWishClick={handleWishClick}
@@ -246,49 +234,39 @@ const MenuPage = ({
 export default MenuPage;
 
 export async function getStaticProps(context: any) {
+  const cate_matched = [
+    {
+      zh: "咖啡",
+      en: "Coffee",
+    },
+    {
+      zh: "茶飲",
+      en: "Tea",
+    },
+    {
+      zh: "冰品",
+      en: "Frozen",
+    },
+    {
+      zh: "甜點",
+      en: "Dessert",
+    },
+  ];
+
   try {
-    const [categories_res, products_res] = await Promise.all([
-      serverFetch("/categories"),
-      serverFetch("/products?page=1"),
-    ]);
+    const categoryRes = await serverFetch("/categories", "GET");
+    const productsRes = await serverFetch("/products", "GET");
 
-    const [sizes_res, ices_res, sugars_res] = await Promise.all([
-      clientFetch("/sizes", {
-        method: "GET",
-      }),
-      clientFetch("/ices", {
-        method: "GET",
-      }),
-      clientFetch("/sugars", {
-        method: "GET",
-      }),
-    ]);
-
-    const cate_matched = [
-      {
-        zh: "咖啡",
-        en: "Coffee",
-      },
-      {
-        zh: "茶飲",
-        en: "Tea",
-      },
-      {
-        zh: "冰品",
-        en: "Frozen",
-      },
-      {
-        zh: "甜點",
-        en: "Dessert",
-      },
-    ];
     let categories;
-    if (categories_res.success) {
-      categories = categories_res.data.map(({ id, code }: CategoryProps) => ({
-        id,
-        title: cate_matched[id - 3],
-        code,
-      }));
+    if (categoryRes.success) {
+      categories = categoryRes.data.map(
+        ({ id, code, hasOpts }: CategoryProps) => ({
+          id,
+          title: cate_matched[id - 3],
+          code,
+          hasOpts,
+        })
+      );
 
       categories = [
         {
@@ -306,23 +284,8 @@ export async function getStaticProps(context: any) {
     return {
       props: {
         categories,
-        sizes: sizes_res.success
-          ? sizes_res.data.map(({ id, title, price }: SizeCustomProps) => {
-              return { id, title, price };
-            })
-          : [],
-        sugars: sugars_res.success
-          ? sugars_res.data.map(({ id, title }: SugarCustomProps) => {
-              return { id, title };
-            })
-          : [],
-        ices: ices_res.success
-          ? ices_res.data.map(({ id, title }: IceCustomProps) => {
-              return { id, title };
-            })
-          : [],
-        products: products_res.success ? products_res.data.products : [],
-        pagination: products_res.success ? products_res.data.pagination : null,
+        products: productsRes.success ? productsRes.data.products : [],
+        pagination: productsRes.success ? productsRes.data.pagination : null,
         messages: (await import(`../messages/${context.locale}.json`)).default,
       },
     };
@@ -331,9 +294,6 @@ export async function getStaticProps(context: any) {
     return {
       props: {
         categories: [],
-        sizes: [],
-        sugars: [],
-        ices: [],
         products: [],
         pagination: null,
         messages: (await import(`../messages/${context.locale}.json`)).default,

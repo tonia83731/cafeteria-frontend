@@ -12,17 +12,16 @@ import { TiUser } from "react-icons/ti";
 import { MdOutlinePhoneAndroid } from "react-icons/md";
 import { FaLocationDot } from "react-icons/fa6";
 import { MdManageAccounts } from "react-icons/md";
-
 import { UserInputProps } from "@/types/user-auth.type";
-import { clientFetch } from "@/lib/fetch";
-import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
+import { clientFetch } from "@/lib/client-fetch";
 
 const ProfileForm = () => {
   const t = useTranslations("Profile");
-  const token = getCookie("authToken");
   const dispatch = useDispatch();
-  const { userInput, isError } = useSelector((state: RootState) => state.auth);
+  const { userAccount, userInput, isError } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const handleInputChange = (name: string, value: any) => {
     dispatch(updatedInputChange({ type: "userInput", name, value }));
@@ -98,11 +97,12 @@ const ProfileForm = () => {
       email,
     };
     try {
-      const response = await clientFetch("/users/edit", {
-        token,
-        method: "PATCH",
-        body,
-      });
+      const response = await clientFetch(
+        `/users/${userAccount}/user-profile-edit`,
+        "PATCH",
+        true,
+        body
+      );
       if (!response.success) {
         toast.error(t("message.profile-update-failed"));
         return;
@@ -143,7 +143,7 @@ const ProfileForm = () => {
         name="account"
         label="account"
         icon={<MdManageAccounts />}
-        // isDisabled={true}
+        isDisabled={true}
         placeholder="@CoffeeManiac"
         value={userInput.account}
         onInputChange={handleInputChange}

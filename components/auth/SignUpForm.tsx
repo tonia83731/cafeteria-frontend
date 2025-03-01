@@ -15,16 +15,16 @@ import {
   updatedInputError,
 } from "@/slices/authSlice";
 import { RootState } from "@/store";
-import { clientFetch } from "@/lib/fetch";
+
 import DefaultInput from "../input/DefaultInput";
 import DefaultPasswordInput from "../input/DefaultPasswordInput";
 
 import { TbMailFilled } from "react-icons/tb";
 import { TiUser } from "react-icons/ti";
 import { MdAccountBalanceWallet } from "react-icons/md";
-import { MdOutlinePhoneAndroid } from "react-icons/md";
 
 import { SignupInputProps } from "@/types/user-auth.type";
+import { clientFetch } from "@/lib/client-fetch";
 
 const SignUpForm = () => {
   const t = useTranslations("Sign");
@@ -35,13 +35,13 @@ const SignUpForm = () => {
   );
 
   const handleInputError = (inputValue: SignupInputProps) => {
-    const { name, password, email, account, phone } = inputValue;
+    const { name, password, email, account } = inputValue;
     let error = {
       status: false,
       message: "",
     };
     switch (true) {
-      case !name || !email || !password || !account || !phone:
+      case !name || !email || !password || !account:
         error = {
           status: true,
           message: `${t("message.error.blank")}`,
@@ -99,10 +99,12 @@ const SignUpForm = () => {
     }
 
     try {
-      const response = await clientFetch("/register", {
-        method: "POST",
-        body: signupInput,
-      });
+      const response = await clientFetch(
+        "/register",
+        "POST",
+        false,
+        signupInput
+      );
 
       if (!response.success) {
         toast.error(`${t("message.signup-false")}`);
@@ -158,7 +160,7 @@ const SignUpForm = () => {
           value={signupInput.password}
           onInputChange={handleInputChange}
         />
-        <DefaultInput
+        {/* <DefaultInput
           id="phone"
           name="phone"
           type="tel"
@@ -167,7 +169,7 @@ const SignUpForm = () => {
           placeholder="0912345678"
           value={signupInput.phone}
           onInputChange={handleInputChange}
-        />
+        /> */}
       </div>
       {isError.status && <p className="text-red-400">{isError.message}</p>}
       <button
