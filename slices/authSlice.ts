@@ -40,8 +40,8 @@ const initialState: AuthState = {
     account: "",
     password: "",
     email: "",
-    phone: null,
-    address: null,
+    phone: "",
+    address: "",
     language: {
       value: "zh",
       label: "中文",

@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { language_options } from "@/data/language_options";
+import { language_options } from "@/data/language-options";
 
 const LanguageLink = ({ className = "w-6 h-6" }: { className?: string }) => {
   const { locale, asPath, push, pathname } = useRouter();

@@ -1,9 +1,6 @@
-import { FormEvent } from "react";
-import { useTranslations } from "next-intl";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { updatedInputChange, updatedInputError } from "@/slices/authSlice";
-import validator from "validator";
+import { updatedInputChange } from "@/slices/authSlice";
 
 import DefaultInput from "../input/DefaultInput";
 import DefaultPasswordInput from "../input/DefaultPasswordInput";
@@ -12,116 +9,24 @@ import { TiUser } from "react-icons/ti";
 import { MdOutlinePhoneAndroid } from "react-icons/md";
 import { FaLocationDot } from "react-icons/fa6";
 import { MdManageAccounts } from "react-icons/md";
-import { UserInputProps } from "@/types/user-auth.type";
-import { toast } from "react-toastify";
-import { clientFetch } from "@/lib/client-fetch";
+import { useTranslations } from "next-intl";
 
 const ProfileForm = () => {
   const t = useTranslations("Profile");
   const dispatch = useDispatch();
-  const { userAccount, userInput, isError } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { userInput } = useSelector((state: RootState) => state.auth);
 
   const handleInputChange = (name: string, value: any) => {
+    // console.log(name, value);
     dispatch(updatedInputChange({ type: "userInput", name, value }));
   };
 
-  const handleInputError = (inputValue: UserInputProps) => {
-    const { name, account, email, password } = inputValue;
-    let error = {
-      status: false,
-      message: "",
-    };
-    switch (true) {
-      case !email || !account || !email:
-        error = {
-          status: true,
-          message: `${t("message.blank")}`,
-        };
-        break;
-      case name.length < 3 || name.length > 50:
-        error = {
-          status: true,
-          message: `${t("message.invalid-name")}`,
-        };
-        break;
-      case account.length < 3 || account.length > 50:
-        error = {
-          status: true,
-          message: `${t("message.invalid-account")}`,
-        };
-        break;
-      case !validator.isEmail(email):
-        error = {
-          status: true,
-          message: `${t("message.invalid-email")}`,
-        };
-        break;
-      case password &&
-        !validator.isStrongPassword(password, {
-          minLength: 8,
-          minLowercase: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-          minSymbols: 1,
-        }):
-        error = {
-          status: true,
-          message: `${t("message.error.invalid-password")}`,
-        };
-        break;
-      default:
-        error = {
-          status: false,
-          message: "",
-        };
-        break;
-    }
-    dispatch(updatedInputError({ error }));
-    return error.status;
-  };
-
-  const handleProfileSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (handleInputError(userInput)) {
-      return;
-    }
-    const { name, password, account, email, address, phone } = userInput;
-    const body = {
-      name,
-      ...(password ? { password } : {}),
-      address,
-      phone,
-      account,
-      email,
-    };
-    try {
-      const response = await clientFetch(
-        `/users/${userAccount}/user-profile-edit`,
-        "PATCH",
-        true,
-        body
-      );
-      if (!response.success) {
-        toast.error(t("message.profile-update-failed"));
-        return;
-      }
-      toast.success(t("message.profile-update-success"));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
-    <form
-      className="flex flex-col gap-6 border border-apricot rounded-lg p-4"
-      onSubmit={handleProfileSubmit}
-    >
+    <div className="flex flex-col gap-6 border border-apricot rounded-lg p-4">
       <DefaultInput
         id="name"
         name="name"
-        label="Name"
+        label={t("input.name")}
         icon={<TiUser />}
         placeholder="Coffee Maniac"
         value={userInput.name}
@@ -131,7 +36,7 @@ const ProfileForm = () => {
         id="email"
         name="email"
         type="email"
-        label="Email"
+        label={t("input.email")}
         icon={<TbMailFilled />}
         // isDisabled={true}
         placeholder="coffee.M@example.com"
@@ -141,7 +46,7 @@ const ProfileForm = () => {
       <DefaultInput
         id="account"
         name="account"
-        label="account"
+        label={t("input.account")}
         icon={<MdManageAccounts />}
         isDisabled={true}
         placeholder="@CoffeeManiac"
@@ -151,7 +56,7 @@ const ProfileForm = () => {
       <DefaultPasswordInput
         id="password"
         name="password"
-        label="Password"
+        label={t("input.password")}
         value={userInput.password}
         onInputChange={handleInputChange}
         placeholder="********"
@@ -159,7 +64,7 @@ const ProfileForm = () => {
       <DefaultInput
         id="phone"
         name="phone"
-        label="Phone"
+        label={t("input.phone")}
         type="tel"
         icon={<MdOutlinePhoneAndroid />}
         value={userInput.phone}
@@ -169,24 +74,13 @@ const ProfileForm = () => {
       <DefaultInput
         id="address"
         name="address"
-        label="Address"
+        label={t("input.address")}
         icon={<FaLocationDot />}
         value={userInput.address}
         onInputChange={handleInputChange}
         placeholder="TheCafe Rd. 113"
       />
-      {isError.status && (
-        <p className="text-heart text-sm">{isError.message}</p>
-      )}
-      <div className="w-full flex justify-end">
-        <button
-          type="submit"
-          className="w-[80px] py-1.5 rounded-lg text-center bg-apricot text-white shadow-sm"
-        >
-          {t("update-profile")}
-        </button>
-      </div>
-    </form>
+    </div>
   );
 };
 

@@ -151,7 +151,18 @@
             "blank": "Name, email cannot be blank",
             "invalid-name": "Name should between 3-50 letters",
             "invalid-email": "Invalid email",
-            "invalid-password": "Invalid password. Password should have minimum 8 letters, included uppercase*1, lowercase*1, number*1, symbol*1"
+            "invalid-password": "Invalid password. Password should have minimum 8 letters, included uppercase*1, lowercase*1, number*1, symbol*1",
+            "invalid-invoice": "Invalid invoice.",
+            "profile-update-success": "Profile updated successfully.",
+            "profile-update-failed": "Profile updated failed."
+        },
+        "input": {
+            "name": "Name",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "account": "Account",
+            "password": "Password"
         }
     },
     "Wish": {

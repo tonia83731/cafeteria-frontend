@@ -153,8 +153,17 @@
             "invalid-name": "名字需介於3-50字之間",
             "invalid-email": "電子郵件格式無效",
             "invalid-password": "密碼最少須8碼，須包含大寫字母*1、小寫字母*1、數字*1、符號*1",
+            "invalid-invoice": "載具條碼格式錯誤",
             "profile-update-success": "用戶資料更新成功",
             "profile-update-failed": "用戶資料更新失敗"
+        },
+        "input": {
+            "name": "姓名",
+            "email": "Email",
+            "phone": "電話",
+            "address": "地址",
+            "account": "帳號",
+            "password": "密碼"
         }
     },
     "Wish": {

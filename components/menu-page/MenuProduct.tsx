@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { sizeOpts, iceOpts, sugarOpts } from "@/data/product-options";
 import { getQtyCount } from "@/slices/orderSlice";
+import { clientFetch } from "@/lib/client-fetch";
 
 type OptionTypes = {
   value: number;
@@ -33,7 +34,6 @@ const MenuProduct = ({
   description_en,
   price,
   image,
-  categoryId,
   locale,
   isWished,
   hasOpts,
@@ -66,8 +66,7 @@ const MenuProduct = ({
     setOptionToggle(true);
   };
 
-  const handleAddCart = async (id: number, categoryId: number) => {
-    console.log(token);
+  const handleAddCart = async (productId: number) => {
     if (!token) {
       setAuthToggle(true);
       return;
@@ -77,28 +76,29 @@ const MenuProduct = ({
       return;
     }
     const body = {
-      productId: id,
+      productId,
       quantity,
-      size: hasOpts ? sizeOption : null,
-      sugar: hasOpts ? sugarOption : null,
-      ice: hasOpts ? iceOption : null,
+      size: hasOpts ? sizeOption.value : null,
+      sugar: hasOpts ? sugarOption.value : null,
+      ice: hasOpts ? iceOption.value : null,
     };
 
     try {
-      // const response = await clientFetch(`/carts/${userId}/add-cart`, {
-      //   method: "POST",
-      //   body,
-      //   token,
-      // });
-      // if (response.success) {
-      //   dispatch(getQtyCount({ count: cartTotalQty + quantity }));
-      //   handleSetDefault();
-      //   setQuantity(0);
-      //   setOptionToggle(false);
-      //   toast.success(t("message.added-success"));
-      // } else {
-      //   toast.error(t("message.added-failed"));
-      // }
+      const response = await clientFetch(
+        `/carts/${userAccount}/add-cart-item`,
+        "POST",
+        true,
+        body
+      );
+      if (response.success) {
+        dispatch(getQtyCount({ count: cartTotalQty + quantity }));
+        handleSetDefault();
+        setQuantity(0);
+        setOptionToggle(false);
+        toast.success(t("message.added-success"));
+      } else {
+        toast.error(t("message.added-failed"));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -163,7 +163,7 @@ const MenuProduct = ({
           ) : (
             <button
               disabled={quantity === 0}
-              onClick={() => handleAddCart(id, categoryId)}
+              onClick={() => handleAddCart(id)}
               className="bg-apricot text-white w-full h-9 rounded-lg hover:shadow-md disabled:bg-default-gray disabled:text-white"
             >
               {t("button.add-cart")}
@@ -273,7 +273,7 @@ const MenuProduct = ({
               onQuantityClick={handleQuantityClick}
             />
             <button
-              onClick={() => handleAddCart(id, categoryId)}
+              onClick={() => handleAddCart(id)}
               className="bg-apricot text-white w-full h-9 md:h-full rounded-lg hover:shadow-md"
             >
               {t("button.add-cart")}

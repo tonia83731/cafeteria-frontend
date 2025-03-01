@@ -1,56 +1,129 @@
 import { GetServerSideProps } from "next";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import Select from "react-select";
 import { useRouter } from "next/router";
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { updatedInputChange, getUserInput } from "@/slices/authSlice";
+import { getUserInput, updatedInputError } from "@/slices/authSlice";
 
 import ProfileLayout from "@/components/layout/ProfileLayout";
 import ProfileForm from "@/components/profile-page/ProfileForm";
 
-import { language_options } from "@/data/language_options";
-import { UserProps } from "@/types/user-auth.type";
-// import { toast } from "react-toastify";
+import { language_options } from "@/data/language-options";
+import { UserInputProps, UserProps } from "@/types/user-auth.type";
 import { authFetch } from "@/lib/server-fetch";
-import DefaultInput from "@/components/input/DefaultInput";
+import ProfileLanguage from "@/components/profile-page/ProfileLanguage";
+import ProfileInvoice from "@/components/profile-page/ProfileInvoice";
+import validator from "validator";
+import { clientFetch } from "@/lib/client-fetch";
+import { toast } from "react-toastify";
 
-const ProfilePage = ({
-  user,
-  account,
-}: {
-  user: UserProps;
-  user_id: number | undefined;
-}) => {
+const ProfilePage = ({ user }: { user: UserProps }) => {
   const t = useTranslations("Profile");
-  const { locale, push, asPath } = useRouter();
+  const [isBtnDisabled, setIsBtnDisabled] = useState(true);
+  const { locale, push, asPath, query } = useRouter();
+  const { account } = query;
   const dispatch = useDispatch();
-  const { userInput } = useSelector((state: RootState) => state.auth);
+  const { userInput, isError } = useSelector((state: RootState) => state.auth);
 
-  const handleInputChange = (name: string, value: any) => {
-    dispatch(updatedInputChange({ type: "userInput", name, value }));
+  const handleInputError = (inputValue: UserInputProps) => {
+    const { name, email, password, invoice } = inputValue;
+
+    const invoice_regex = /^\/[0-9A-Z.\-+]{7}$/;
+
+    let error = {
+      status: false,
+      message: "",
+    };
+    switch (true) {
+      case !name || !email:
+        error = {
+          status: true,
+          message: `${t("message.blank")}`,
+        };
+        break;
+      case name.length < 3 || name.length > 50:
+        error = {
+          status: true,
+          message: `${t("message.invalid-name")}`,
+        };
+        break;
+      case !validator.isEmail(email):
+        error = {
+          status: true,
+          message: `${t("message.invalid-email")}`,
+        };
+        break;
+      case password &&
+        !validator.isStrongPassword(password, {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1,
+        }):
+        error = {
+          status: true,
+          message: `${t("message.invalid-password")}`,
+        };
+        break;
+      case invoice && !invoice_regex.test(invoice):
+        error = {
+          status: true,
+          message: `${t("message.invalid-invoice")}`,
+        };
+      default:
+        error = {
+          status: false,
+          message: "",
+        };
+        break;
+    }
+    dispatch(updatedInputError({ error }));
+    return error.status;
   };
 
-  // const handleLanguageUpdate = async () => {
-  //   try {
-  //     const response = await clientFetch(`/users/${user_id}/language`, {
-  //       method: "PATCH",
-  //       token,
-  //       body: {
-  //         language: userInput.language.value,
-  //       },
-  //     });
-  //     if (!response.success) {
-  //       toast.error(t("message.profile-update-failed"));
-  //       return;
-  //     }
-  //     push(asPath, asPath, { locale: userInput.language.value });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const handleProfileUpdated = async () => {
+    if (handleInputError(userInput)) {
+      return;
+    }
+
+    const { name, password, email, address, phone, invoice, language } =
+      userInput;
+
+    const body = {
+      name,
+      ...(password ? { password } : {}),
+      email,
+      ...(address ? { address } : {}),
+      ...(phone ? { phone } : {}),
+      ...(invoice ? { invoice } : {}),
+      language: language.value,
+    };
+
+    const isLaugageUpdated = language.value !== user.language;
+
+    try {
+      const response = await clientFetch(
+        `/users/${account}/user-profile-edit`,
+        "PUT",
+        true,
+        body
+      );
+      if (!response?.success) {
+        toast.error(`${t("message.profile-update-failed")}`);
+        return;
+      }
+
+      toast.success(`${t("message.profile-update-success")}`);
+      if (isLaugageUpdated) {
+        push(asPath, asPath, { locale: language.value });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -68,108 +141,51 @@ const ProfilePage = ({
       account: user.account,
       password: "",
       email: user.email,
-      phone: user.phone,
-      address: user.address,
+      phone: user.phone ?? "",
+      address: user.address ?? "",
       language,
-      invoice: "",
+      invoice: user.invoice ?? "",
     };
     dispatch(getUserInput({ inputValue: user_value }));
   }, [user]);
 
+  useEffect(() => {
+    const { name, email, password, phone, address, language, invoice } =
+      userInput;
+
+    if (
+      name === user.name &&
+      email === user.email &&
+      password === user.password &&
+      phone === user.phone &&
+      address === user.address &&
+      invoice === user.invoice &&
+      language.value === user.language
+    ) {
+      setIsBtnDisabled(true);
+    } else {
+      setIsBtnDisabled(false);
+    }
+  }, [userInput]);
   return (
     <ProfileLayout>
+      {isError.status && (
+        <p className="text-heart text-sm">{isError.message}</p>
+      )}
       <div className="flex flex-col gap-4 md:grid md:grid-cols-[2fr_1fr]">
         <ProfileForm />
-        <div className="flex flex-col gap-4">
-          <div className="h-fit border border-apricot rounded-lg p-4 flex flex-col gap-4">
-            <h5 className="font-medium uppercase text-lg">{t("language")}</h5>
-            <div className="flex flex-col gap-4">
-              <Select
-                options={language_options}
-                defaultValue={userInput.language}
-                styles={{
-                  indicatorSeparator: (styles) => ({
-                    ...styles,
-                    display: "none",
-                  }),
-                  placeholder: (styles) => ({
-                    ...styles,
-                    color: "#a68e74",
-                    fontSize: "0.875rem",
-                  }),
-                  clearIndicator: (styles) => ({
-                    ...styles,
-                    display: "none",
-                  }),
-                  dropdownIndicator: (styles) => ({
-                    ...styles,
-                    display: "none",
-                  }),
-                  menu: (styles) => ({
-                    ...styles,
-                    borderRadius: "0.25rem",
-                  }),
-                  control: (baseStyles) => ({
-                    ...baseStyles,
-                    backgroundColor: "#ffefcd",
-                    height: "2.5rem",
-                    width: "100%",
-
-                    border: "none",
-                    borderRadius: "0.5rem",
-                    caretColor: "transparent",
-                    paddingLeft: "0.5rem",
-                    paddingRight: "1rem",
-                    boxShadow: "none",
-                    "&:hover": {
-                      border: "1px solid #424530",
-                    },
-                    "&:focus": {
-                      border: "1px solid #424530",
-                    },
-                    "&:active": {
-                      border: "1px solid #424530",
-                    },
-                  }),
-                  option: (styles, state) => ({
-                    ...styles,
-                    backgroundColor: state.isSelected
-                      ? "rgb(255, 239, 205, .6)"
-                      : "white",
-                    color: "#424530",
-                    "&:hover": {
-                      backgroundColor: "rgb(255, 239, 205, .6)",
-                    },
-                  }),
-                }}
-                onChange={(newValue) => {
-                  handleInputChange("language", newValue);
-                }}
-              />
-              <div className="w-full flex justify-end">
-                <button
-                  disabled={user?.language === userInput.language?.value}
-                  // onClick={handleLanguageUpdate}
-                  className="w-[80px] py-1.5 rounded-lg text-center bg-apricot text-white shadow-sm disabled:bg-default-gray"
-                >
-                  {t("update-profile")}
-                </button>
-              </div>
-            </div>
+        <div className="flex flex-col gap-4 md:justify-between">
+          <div className="flex flex-col gap-4">
+            <ProfileLanguage />
+            <ProfileInvoice />
           </div>
-          <div className="h-fit border border-apricot rounded-lg p-4 flex flex-col gap-4">
-            <h5 className="font-medium uppercase text-lg">{t("invoice")}</h5>
-            <DefaultInput
-              id="invoice"
-              name="invoice"
-              label=""
-              isDisabled={true}
-              placeholder="/1234567"
-              value={userInput.invoice}
-              onInputChange={handleInputChange}
-              className="h-10 md:h-12 px-2"
-            />
-          </div>
+          <button
+            disabled={isBtnDisabled}
+            onClick={handleProfileUpdated}
+            className="w-full py-1.5 rounded-lg text-center bg-apricot text-white shadow-sm disabled:bg-default-gray"
+          >
+            {t("update-profile")}
+          </button>
         </div>
       </div>
     </ProfileLayout>
@@ -209,9 +225,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
+    const res = response.data;
+    const user = {
+      ...res,
+      phone: res.phone ? res.phone : "",
+      address: res.address ? res.address : "",
+      invoice: res.invoice ? res.invoice : "",
+      password: res.password ? res.password : "",
+    };
+
     return {
       props: {
-        user: response.data,
+        user,
         account,
         messages: (await import(`../../../messages/${context.locale}.json`))
           .default,
