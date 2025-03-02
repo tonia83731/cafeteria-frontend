@@ -1,91 +1,82 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/router";
 import { setCookie } from "cookies-next";
-import { clientFetch } from "@/lib/fetch";
 
-// import { useAuthContext } from "@/context/authContext";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
 
 import DefaultInput from "../input/DefaultInput";
 import DefaultPasswordInput from "../input/DefaultPasswordInput";
 
 import { TbMailFilled } from "react-icons/tb";
-import { toast } from "react-toastify";
+import { RootState } from "@/store";
+import {
+  resetForm,
+  updatedInputChange,
+  updatedInputError,
+} from "@/slices/authSlice";
+import { SigninInputProps } from "../../types/user-auth.type";
+import { clientFetch } from "@/lib/client-fetch";
 
 const SignInForm = () => {
   const t = useTranslations("Sign");
   const router = useRouter();
-  // const { handleAuthConfirm } = useAuthContext();
+  const dispatch = useDispatch();
+  const { signinInput, isError } = useSelector(
+    (state: RootState) => state.auth
+  );
 
-  const [inputValue, setInputValue] = useState({
-    email: "",
-    password: "",
-  });
-  const [isError, setIsError] = useState({
-    status: false,
-    message: "",
-  });
-
-  const initializedData = () => {
-    setInputValue({
-      email: "",
-      password: "",
-    });
-    setIsError({
-      status: false,
-      message: "",
-    });
+  const handleInputChange = (name: string, value: any) => {
+    dispatch(updatedInputChange({ type: "signinInput", name, value }));
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setInputValue((prev) => ({ ...prev, [name]: value }));
+  const handleInputError = (inputValue: SigninInputProps) => {
+    const { email, password } = inputValue;
+    let error = {
+      status: false,
+      message: "",
+    };
+    switch (true) {
+      case !email || !password:
+        error = {
+          status: true,
+          message: `${t("message.error.blank")}`,
+        };
+        break;
+      default:
+        error = {
+          status: false,
+          message: "",
+        };
+        break;
+    }
+    dispatch(updatedInputError({ error }));
+    return error.status;
   };
 
   const handleSigninSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsError({
-      status: false,
-      message: "",
-    });
-    const { email, password } = inputValue;
-
-    if (!email || !password) {
-      setIsError({
-        status: true,
-        message: `${t("message.error.blank")}`,
-      });
-      return;
-    }
-
-    const body = {
-      email,
-      password,
-    };
+    if (handleInputError(signinInput)) return;
 
     try {
-      const response = await clientFetch("/login", {
-        method: "POST",
-        body,
-      });
-      // console.log(response);
-      if (response.success) {
-        const expirationDate = new Date();
-        expirationDate.setTime(
-          expirationDate.getTime() + 3 * 24 * 60 * 60 * 1000
-        );
-        setCookie("authToken", response.data.token, {
-          expires: expirationDate,
-        });
-        initializedData();
-        router.push({
-          pathname: "/",
-          query: { signin_success: "true" },
-        });
-      } else {
+      const response = await clientFetch("/login", "POST", false, signinInput);
+      if (!response.success) {
         toast.error(`${t("message.signin-false")}`);
+        return;
       }
+      const expirationDate = new Date();
+      expirationDate.setTime(
+        expirationDate.getTime() + 3 * 24 * 60 * 60 * 1000
+      );
+      setCookie("authToken", response.data.token, {
+        expires: expirationDate,
+      });
+      dispatch(resetForm());
+      router.push({
+        pathname: "/",
+        query: { signin_success: "true" },
+      });
     } catch (error) {
       console.log(error);
     }
@@ -105,7 +96,7 @@ const SignInForm = () => {
           label={t("form.email")}
           icon={<TbMailFilled />}
           placeholder="coffee.M@example.com"
-          value={inputValue.email}
+          value={signinInput.email}
           onInputChange={handleInputChange}
         />
         <DefaultPasswordInput
@@ -113,7 +104,7 @@ const SignInForm = () => {
           name="password"
           label={t("form.password")}
           placeholder="********"
-          value={inputValue.password}
+          value={signinInput.password}
           onInputChange={handleInputChange}
         />
       </div>

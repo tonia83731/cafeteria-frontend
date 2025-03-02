@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { NavLinkProps } from "@/types/header";
+import { NavLinkProps } from "./FrontHeader";
 
 export const isLinkActive = (pathname: string, href: string) => {
   return pathname === href || pathname.includes(href);
@@ -8,6 +8,7 @@ export const isLinkActive = (pathname: string, href: string) => {
 
 const NavLink = ({ title, href, icon }: NavLinkProps) => {
   const { pathname } = useRouter();
+  // console.log(title);
   return (
     <Link
       href={href as string}

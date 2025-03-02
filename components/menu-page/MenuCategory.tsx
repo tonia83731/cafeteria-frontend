@@ -1,3 +1,5 @@
+import { LangOptionType } from "@/types/custom-type";
+
 type MenuCategoryProps = {
   category_arr: {
     id: number;
@@ -7,7 +9,7 @@ type MenuCategoryProps = {
       en: string;
     };
   }[];
-  locale: "zh" | "en";
+  locale: LangOptionType;
   selectCategory: number | null;
   onSelectChange: (id: number) => void;
 };
@@ -35,7 +37,7 @@ const MenuCategory = ({
               id={code}
               type="radio"
               name="category"
-              value={id}
+              value={id || ""}
               className="hidden"
               onChange={() => onSelectChange(id)}
               checked={selectCategory === id}

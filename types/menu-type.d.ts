@@ -1,26 +1,29 @@
-import { MultiLangProps } from "./default";
+import { MultiLangProps } from "./default-input";
 
-export type CategoryOptionProps = CategoryProps & {
+export type CategoryProps = {
+  id: number;
   title: MultiLangProps;
+  code: string;
+  hasOpts: boolean;
 };
 
 export type MenuProductsProps = {
   id: number;
-  title: MultiLangProps;
-  description: MultiLangProps;
+  title: string;
+  title_en: string;
+  description: string;
+  description_en: string;
   price: number;
   image: string;
   categoryId: number;
   locale: "en" | "zh";
-  //   sizes: SizeCustomProps[];
-  //   sugars: DefaultCustomProps[];
-  //   ices: DefaultCustomProps[];
   optionToggle: boolean;
   sizeOption: number;
   sugarOption: number;
   iceOption: number;
-  isWished: boolean;
-  onWishClick: (productId: number, isWished: boolean) => void;
+  isWished: boolean | null;
+  hasOpts?: boolean;
+  onWishClick: (productId: number, isWished: boolean | null) => void;
 };
 
 export interface MenuPageData {
@@ -30,3 +33,17 @@ export interface MenuPageData {
   sugars: DefaultCustomProps[];
   ices: DefaultCustomProps[];
 }
+
+export type WishProductProps = {
+  id: number;
+  title: string;
+  title_en: string;
+  description: string;
+  description_en: string;
+  price: number;
+  categoryId: number;
+  image: string;
+  isWished: boolean;
+  createdAt: string;
+  updatedAt: string;
+};

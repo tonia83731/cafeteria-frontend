@@ -34,6 +34,11 @@
                 "title": "點擊「送出訂單」並等待餐點送達",
                 "desc": "完成訂購流程，並等待餐點送至指定地址。"
             }
+        },
+        "message": {
+            "signin-success": "登入成功",
+            "signout-success": "登出成功",
+            "order-placed": "訂單提交成功，感謝您的購買。"
         }
     },
     "Sign": {
@@ -110,11 +115,21 @@
             "added-wish-success": "產品加入最愛清單成功",
             "removed-wish-failed": "產品移除最愛清單失敗",
             "removed-wish-success": "產品移除最愛清單成功"
+        },
+        "auth": {
+            "title": "使用者未登入",
+            "message": "請先登入在選擇產品",
+            "to-signin": "前往登入"
         }
     },
     "Profile": {
         "title": "用戶資料",
         "language": "語言選擇",
+        "invoice": "載具發票",
+        "detail": "詳細資料",
+        "delivery": "商品已送出, 請備好您的現金",
+        "pickup": "商品已準備完成",
+        "last-update": "最後更新",
         "sub-header": {
             "settings": "基本設定",
             "orders": "訂單資料",
@@ -143,8 +158,26 @@
             "invalid-name": "名字需介於3-50字之間",
             "invalid-email": "電子郵件格式無效",
             "invalid-password": "密碼最少須8碼，須包含大寫字母*1、小寫字母*1、數字*1、符號*1",
+            "invalid-invoice": "載具條碼格式錯誤",
             "profile-update-success": "用戶資料更新成功",
             "profile-update-failed": "用戶資料更新失敗"
+        },
+        "input": {
+            "name": "姓名",
+            "email": "Email",
+            "phone": "電話",
+            "address": "地址",
+            "account": "帳號",
+            "password": "密碼"
+        },
+        "no-coupon-item": "目前沒有優惠券",
+        "no-order":"目前沒有訂單,",
+        "buy-now": "前往購買",
+        "price": {
+            "product": "產品價格",
+            "tax": "稅",
+            "discount": "折扣",
+            "total": "總計"
         }
     },
     "Wish": {
@@ -153,17 +186,32 @@
         "message": {
             "removed-wish-failed": "產品移除最愛清單失敗",
             "removed-wish-success": "產品移除最愛清單成功"
-        }
+        },
+        "no-item": "目前購物車沒有商品，",
+        "buy-now": "前往產品列表"
     },
     "Cart": {
         "title": "購物車",
         "calculate": "價格計算",
-        "order": "訂單資訊",
-        "personal": "收件人資訊",
-        "orderers": "訂購人",
         "payment": "付款資訊",
         "shipping-method": "運送方式",
         "payment-method": "付款方式",
+        "orderer": "訂購人資料",
+        "order-input": {
+            "name": "姓名",
+            "email": "Email",
+            "phone": "電話",
+            "address": "地址",
+            "no-content": "沒有資料"
+        },
+        "recipient": "收貨人資料",
+        "recipient-input": {
+            "name": "姓名",
+            "email": "Email",
+            "phone": "電話",
+            "address": "地址",
+            "sync": "同訂購人"
+        },       
         "button":{
             "edit": "修改",
             "delete": "刪除",
@@ -188,20 +236,25 @@
         },
         "price": {
             "product-price": "小計",
-            "shipping-price": "運費",
             "tax-price": "TAX(10%)",
+            "discount-price": "折扣",
             "total": "總計"
         },
         "message": {
             "delete-error": "刪除失敗",
             "delete-success": "刪除成功",
             "edit-error": "修改失敗",
-            "edit-success": "修改成功"
+            "edit-success": "修改成功",
+            "unavailable": "優惠券無效"
         },
         "custom": {
             "size-title": "尺寸選擇",
             "ice-title": "冰塊選擇",
             "sugar-title": "甜度選擇"
-        }
+        },
+        "select-shipping": "選擇運送方式",
+        "select-payment": "選擇付款方式",
+        "no-item": "目前購物車沒有商品，",
+        "buy-now": "前往購買"
     }
 }

@@ -38,9 +38,12 @@ const Modal = ({
         ref={modalRef}
         className="bg-white w-11/12 md:w-2/3 mx-auto rounded-md px-4 md:max-w-[800px]"
       >
-        <header className="flex justify-between">
-          <h2 className="font-italiana text-xl h-9 leading-9">{title}</h2>
-          <button onClick={onClose} className="text-xl text-fern">
+        <header className="flex justify-between items-center h-9 md:h-12 border-b border-fern-30">
+          <h2 className="font-italiana text-xl font-bold leading-9">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-xl text-fern-30 hover:text-fern"
+          >
             <RxCross2 />
           </button>
         </header>

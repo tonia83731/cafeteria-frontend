@@ -1,35 +1,20 @@
-import dayjs from "dayjs";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslations } from "next-intl";
-import { MultiLangProps } from "@/types/default";
 import { PiCoffeeBeanFill } from "react-icons/pi";
-
-type CouponProps = {
-  //   id: number;
-  title: MultiLangProps;
-  description: MultiLangProps;
-  code: string;
-  startDate: string;
-  endDate: string;
-  //   discountType: string;
-  //   discountValue: string;
-  //   isPublished: boolean;
-};
+import { FormatedCouponType } from "@/pages/[account]/profile/coupons";
 
 const ProfileCoupon = ({
-  //   id,
   title,
+  title_en,
   description,
+  description_en,
   code,
-  startDate,
   endDate,
-}: CouponProps) => {
+}: FormatedCouponType) => {
   const { locale } = useRouter();
   const t = useTranslations("Profile");
   const [isCopy, setIsCopy] = useState(false);
-  //   const start_date = dayjs(startDate).format("YYYY-MM-DD");
-  const end_date = dayjs(endDate).format("YYYY-MM-DD");
   const handleCopyCode = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -46,23 +31,24 @@ const ProfileCoupon = ({
           <PiCoffeeBeanFill />
         </div>
         <div className="">
-          <h5 className="font-bold text-lg">
-            {title[locale as string as "zh" | "en"]}
-          </h5>
+          <div className="">
+            <h5 className="font-bold text-lg">
+              {locale === "en" ? title_en : title}
+            </h5>
+          </div>
           <p className="text-sm text-natural md:line-clamp-2">
-            {description[locale as string as "zh" | "en"]}
+            {locale === "en" ? description_en : description}
           </p>
           <p className="text-sm text-natural">
-            {t("due")}: {end_date}
+            {t("due")}: {endDate}
           </p>
         </div>
       </div>
       <div className="border border-moss-60 py-1 px-4 rounded-lg flex justify-between items-center gap-2">
         <div className="text-base">{code}</div>
         <button
-          disabled={new Date(startDate) > new Date()}
           onClick={handleCopyCode}
-          className="border bg-apricot text-white rounded-lg px-2 py-0.5"
+          className="border bg-apricot text-white rounded-lg px-2 py-0.5 disabled:bg-default-gray"
         >
           {isCopy ? t("button.copied") : t("button.copy")}
         </button>

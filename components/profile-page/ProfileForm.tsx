@@ -1,97 +1,86 @@
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { updatedInputChange } from "@/slices/authSlice";
+
 import DefaultInput from "../input/DefaultInput";
 import DefaultPasswordInput from "../input/DefaultPasswordInput";
 import { TbMailFilled } from "react-icons/tb";
 import { TiUser } from "react-icons/ti";
 import { MdOutlinePhoneAndroid } from "react-icons/md";
 import { FaLocationDot } from "react-icons/fa6";
-import { ChangeEvent, FormEvent } from "react";
+import { MdManageAccounts } from "react-icons/md";
 import { useTranslations } from "next-intl";
-type ProfileFormProps = {
-  userProfile: {
-    name: string;
-    email: string;
-    phone: string | null;
-    address: string | null;
-    password: string;
-  };
-  isError: {
-    status: boolean;
-    message: string;
-  };
-  onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onProfileSubmit: (e: FormEvent<HTMLFormElement>) => void;
-};
-const ProfileForm = ({
-  userProfile,
-  isError,
-  onInputChange,
-  onProfileSubmit,
-}: ProfileFormProps) => {
+
+const ProfileForm = () => {
   const t = useTranslations("Profile");
+  const dispatch = useDispatch();
+  const { userInput } = useSelector((state: RootState) => state.auth);
+
+  const handleInputChange = (name: string, value: any) => {
+    // console.log(name, value);
+    dispatch(updatedInputChange({ type: "userInput", name, value }));
+  };
+
   return (
-    <form
-      className="flex flex-col gap-6 border border-apricot rounded-lg p-4"
-      onSubmit={onProfileSubmit}
-    >
+    <div className="flex flex-col gap-6 border border-apricot rounded-lg p-4">
       <DefaultInput
         id="name"
         name="name"
-        label="Name"
+        label={t("input.name")}
         icon={<TiUser />}
         placeholder="Coffee Maniac"
-        value={userProfile.name}
-        onInputChange={onInputChange}
+        value={userInput.name}
+        onInputChange={handleInputChange}
       />
       <DefaultInput
         id="email"
         name="email"
         type="email"
-        label="Email"
+        label={t("input.email")}
         icon={<TbMailFilled />}
-        isDisabled={true}
+        // isDisabled={true}
         placeholder="coffee.M@example.com"
-        value={userProfile.email}
-        onInputChange={onInputChange}
+        value={userInput.email}
+        onInputChange={handleInputChange}
+      />
+      <DefaultInput
+        id="account"
+        name="account"
+        label={t("input.account")}
+        icon={<MdManageAccounts />}
+        isDisabled={true}
+        placeholder="@CoffeeManiac"
+        value={userInput.account}
+        onInputChange={handleInputChange}
       />
       <DefaultPasswordInput
         id="password"
         name="password"
-        label="Password"
-        value={userProfile.password}
-        onInputChange={onInputChange}
+        label={t("input.password")}
+        value={userInput.password}
+        onInputChange={handleInputChange}
         placeholder="********"
       />
       <DefaultInput
         id="phone"
         name="phone"
-        label="Phone"
+        label={t("input.phone")}
         type="tel"
         icon={<MdOutlinePhoneAndroid />}
-        value={userProfile.phone}
-        onInputChange={onInputChange}
+        value={userInput.phone}
+        onInputChange={handleInputChange}
         placeholder="0912345678"
       />
       <DefaultInput
         id="address"
         name="address"
-        label="Address"
+        label={t("input.address")}
         icon={<FaLocationDot />}
-        value={userProfile.address}
-        onInputChange={onInputChange}
+        value={userInput.address}
+        onInputChange={handleInputChange}
         placeholder="TheCafe Rd. 113"
       />
-      {isError.status && (
-        <p className="text-heart text-sm">{isError.message}</p>
-      )}
-      <div className="w-full flex justify-end">
-        <button
-          type="submit"
-          className="w-[80px] py-1.5 rounded-lg text-center bg-apricot text-white shadow-sm"
-        >
-          {t("update-profile")}
-        </button>
-      </div>
-    </form>
+    </div>
   );
 };
 

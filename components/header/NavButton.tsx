@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { NavLinkProps } from "@/types/header";
+import { NavLinkProps } from "./FrontHeader";
 
 type NavButtonProps = NavLinkProps & {
   onButtonClick: () => void;

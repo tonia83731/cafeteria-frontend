@@ -1,127 +1,121 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import validator from "validator";
 import { useRouter } from "next/router";
-import { clientFetch } from "@/lib/fetch";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+// import {
+//   resetForm,
+//   updatedInputChange,
+//   updatedInputError,
+// } from "@/slices/registerSlice";
+import {
+  resetForm,
+  updatedInputChange,
+  updatedInputError,
+} from "@/slices/authSlice";
+import { RootState } from "@/store";
+
 import DefaultInput from "../input/DefaultInput";
 import DefaultPasswordInput from "../input/DefaultPasswordInput";
 
 import { TbMailFilled } from "react-icons/tb";
 import { TiUser } from "react-icons/ti";
 import { MdAccountBalanceWallet } from "react-icons/md";
-import { MdOutlinePhoneAndroid } from "react-icons/md";
-import { toast } from "react-toastify";
+
+import { SignupInputProps } from "@/types/user-auth.type";
+import { clientFetch } from "@/lib/client-fetch";
 
 const SignUpForm = () => {
   const t = useTranslations("Sign");
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { signupInput, isError } = useSelector(
+    (state: RootState) => state.auth
+  );
 
-  const [inputValue, setInputValue] = useState({
-    name: "",
-    password: "",
-    email: "",
-    account: "@",
-    phone: "",
-  });
-  const [isError, setIsError] = useState({
-    status: false,
-    message: "",
-  });
-
-  const initializedData = () => {
-    setInputValue({
-      name: "",
-      password: "",
-      email: "",
-      account: "@",
-      phone: "",
-    });
-    setIsError({
+  const handleInputError = (inputValue: SignupInputProps) => {
+    const { name, password, email, account } = inputValue;
+    let error = {
       status: false,
       message: "",
-    });
-  };
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setInputValue((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleRegisterSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsError({
-      status: false,
-      message: "",
-    });
-
-    const { name, password, email, account, phone } = inputValue;
-    if (!name || !email || !password || !account || !phone) {
-      setIsError({
-        status: true,
-        message: `${t("message.error.blank")}`,
-      });
-      return;
-    }
-    if (name.length < 3 || name.length > 50) {
-      setIsError({
-        status: true,
-        message: `${t("message.error.invalid-name")}`,
-      });
-      return;
-    }
-    if (account.length < 3 || account.length > 50) {
-      setIsError({
-        status: true,
-        message: `${t("message.error.invalid-account")}`,
-      });
-      return;
-    }
-    if (!validator.isEmail(email)) {
-      setIsError({
-        status: true,
-        message: `${t("message.error.invalid-email")}`,
-      });
-      return;
-    }
-    if (
-      !validator.isStrongPassword(password, {
+    };
+    switch (true) {
+      case !name || !email || !password || !account:
+        error = {
+          status: true,
+          message: `${t("message.error.blank")}`,
+        };
+        break;
+      case name.length < 3 || name.length > 50:
+        error = {
+          status: true,
+          message: `${t("message.error.invalid-name")}`,
+        };
+        break;
+      case account.length < 3 || account.length > 50:
+        error = {
+          status: true,
+          message: `${t("message.error.invalid-account")}`,
+        };
+        break;
+      case !validator.isEmail(email):
+        error = {
+          status: true,
+          message: `${t("message.error.invalid-email")}`,
+        };
+        break;
+      case !validator.isStrongPassword(password, {
         minLength: 8,
         minLowercase: 1,
         minUppercase: 1,
         minNumbers: 1,
         minSymbols: 1,
-      })
-    ) {
-      setIsError({
-        status: true,
-        message: `${t("message.error.invalid-password")}`,
-      });
+      }):
+        error = {
+          status: true,
+          message: `${t("message.error.invalid-password")}`,
+        };
+        break;
+      default:
+        error = {
+          status: false,
+          message: "",
+        };
+        break;
+    }
+    dispatch(updatedInputError({ error }));
+    return error.status;
+  };
+
+  const handleInputChange = (name: string, value: any) => {
+    dispatch(updatedInputChange({ type: "signupInput", name, value }));
+  };
+
+  const handleRegisterSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (handleInputError(signupInput)) {
       return;
     }
 
-    const body = {
-      name,
-      password,
-      email,
-      account,
-      phone,
-    };
     try {
-      const response = await clientFetch("/register", {
-        method: "POST",
-        body,
-      });
+      const response = await clientFetch(
+        "/register",
+        "POST",
+        false,
+        signupInput
+      );
 
-      if (response.success) {
-        initializedData();
-        router.push({
-          pathname: "/signin",
-          query: { signup_success: "true" },
-        });
-      } else {
+      if (!response.success) {
         toast.error(`${t("message.signup-false")}`);
+        return;
       }
+
+      dispatch(resetForm());
+      router.push({
+        pathname: "/signin",
+        query: { signup_success: "true" },
+      });
     } catch (error) {
       console.log(error);
     }
@@ -136,7 +130,7 @@ const SignUpForm = () => {
           label={t("form.name")}
           icon={<TiUser />}
           placeholder="Coffee Maniac"
-          value={inputValue.name}
+          value={signupInput.name}
           onInputChange={handleInputChange}
         />
         <DefaultInput
@@ -145,7 +139,7 @@ const SignUpForm = () => {
           label={t("form.account")}
           icon={<MdAccountBalanceWallet />}
           placeholder="@coffeeManiac"
-          value={inputValue.account}
+          value={signupInput.account}
           onInputChange={handleInputChange}
         />
         <DefaultInput
@@ -155,7 +149,7 @@ const SignUpForm = () => {
           label={t("form.email")}
           icon={<TbMailFilled />}
           placeholder="coffee.M@example.com"
-          value={inputValue.email}
+          value={signupInput.email}
           onInputChange={handleInputChange}
         />
         <DefaultPasswordInput
@@ -163,19 +157,19 @@ const SignUpForm = () => {
           name="password"
           label={t("form.password")}
           placeholder="********"
-          value={inputValue.password}
+          value={signupInput.password}
           onInputChange={handleInputChange}
         />
-        <DefaultInput
+        {/* <DefaultInput
           id="phone"
           name="phone"
           type="tel"
           label={t("form.phone")}
           icon={<MdOutlinePhoneAndroid />}
           placeholder="0912345678"
-          value={inputValue.phone}
+          value={signupInput.phone}
           onInputChange={handleInputChange}
-        />
+        /> */}
       </div>
       {isError.status && <p className="text-red-400">{isError.message}</p>}
       <button

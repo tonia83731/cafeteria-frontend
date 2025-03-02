@@ -3,7 +3,7 @@ import NavLink from "./NavLink";
 import NavButton from "./NavButton";
 import LogoLink from "./LogoLink";
 import LanguageLink from "./LanguageLink";
-import { HeaderProps } from "@/types/header";
+import { HeaderProps } from "./FrontHeader";
 
 const SideHeader = ({ navlinks, onSignOut }: HeaderProps) => {
   const { pathname } = useRouter();
