@@ -34,6 +34,11 @@
                 "title": "點擊「送出訂單」並等待餐點送達",
                 "desc": "完成訂購流程，並等待餐點送至指定地址。"
             }
+        },
+        "message": {
+            "signin-success": "登入成功",
+            "signout-success": "登出成功",
+            "order-placed": "訂單提交成功，感謝您的購買。"
         }
     },
     "Sign": {
@@ -167,7 +172,13 @@
         },
         "no-coupon-item": "目前沒有優惠券",
         "no-order":"目前沒有訂單,",
-        "buy-now": "前往購買"
+        "buy-now": "前往購買",
+        "price": {
+            "product": "產品價格",
+            "tax": "稅",
+            "discount": "折扣",
+            "total": "總計"
+        }
     },
     "Wish": {
         "title": "我的最愛",

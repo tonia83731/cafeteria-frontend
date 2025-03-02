@@ -32,7 +32,7 @@ const CartItems = ({
   const { locale, query } = useRouter();
   const { account } = query;
 
-  const { cartLists, cartTotalQty, price } = useSelector(
+  const { cartLists, cartTotalQty } = useSelector(
     (state: RootState) => state.order
   );
 
@@ -144,14 +144,45 @@ const CartItems = ({
       sugar: customOptions.sugar,
     };
     // see if price are the same
-    const curr_product_price = product_price + sizeOpts[size as number].price;
     const updated_product_price =
       product_price + sizeOpts[customOptions.size as number].price;
-    const isSamePrice = curr_product_price === updated_product_price;
 
-    const productPrice = price.productPrice;
-    // cartItemId ===> id
-    console.log(body, isSamePrice, productPrice);
+    try {
+      const response = await clientFetch(
+        `/carts/${account}/${id}/updated-cart-item`,
+        "PATCH",
+        true,
+        body
+      );
+
+      if (response.success) {
+        const updated_cartlists = cartLists.map((cart) => {
+          return cart.id === id
+            ? {
+                ...cart,
+                size: customOptions.size,
+                ice: customOptions.ice,
+                sugar: customOptions.sugar,
+                price: updated_product_price * cart.quantity,
+              }
+            : cart;
+        });
+        const updated_product_prices = updated_cartlists.reduce(
+          (acc, curr) => (acc += curr.price),
+          0
+        );
+        dispatch(
+          updatedOrderPrice({
+            name: "productPrice",
+            value: updated_product_prices,
+          })
+        );
+        dispatch(getCartLists({ data: updated_cartlists }));
+        setEditToggle(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleEditCancel = () => {
@@ -263,9 +294,15 @@ const CartItems = ({
                       type="radio"
                       className="hidden"
                       name="drinks-size"
-                      onChange={() =>
-                        setCustomOptions((prev) => ({ ...prev, size: value }))
-                      }
+                      onChange={() => {
+                        const updated_price =
+                          (product_price + price) * customOptions.quantity;
+                        setCustomOptions((prev) => ({
+                          ...prev,
+                          size: value,
+                          total: updated_price,
+                        }));
+                      }}
                       checked={customOptions.size === value}
                     />
                     {title[locale as string as "en" | "zh"]} (+${price})

@@ -106,6 +106,7 @@ const ProfileOrdersPage = ({
           </div>
           <div className="flex flex-col gap-4">
             {userOrders.map((order: any) => {
+              console.log(order);
               return (
                 <ProfileOrder
                   {...order}

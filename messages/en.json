@@ -34,6 +34,11 @@
                 "title": "Click 'Submit Order' and wait for your food to arrive",
                 "desc": "Complete the ordering process and await your meal delivery to the specified address."
             }
+        },
+        "message": {
+            "signin-success": "Sign-in Success",
+            "signout-success": "Sign-out Success",
+            "order-placed": "Order submitted successfully. Thank you for your purchase."
         }
     },
     "Sign": {
@@ -166,7 +171,13 @@
         },
         "no-coupon-item": "No coupons available at the moment",
         "no-order": "No orders at the moment",  
-        "buy-now": "Buy now"
+        "buy-now": "Buy now",
+        "price": {
+            "product": "Products",
+            "tax": "Tax",
+            "discount": "Discounts",
+            "total": "Total"
+        }
     },
     "Wish": {
         "title": "Wish",

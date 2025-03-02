@@ -3,10 +3,13 @@ import { useTranslations } from "next-intl";
 
 import HomeLayout from "@/components/layout/HomeLayout";
 import StepSection from "@/components/home-page/StepSection";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const t = useTranslations("Home");
-  // const { signin_success, signout_success } = useRouter().query;
+  const { signin_success, signout_success, order_placed } = useRouter().query;
 
   const home_link = [
     {
@@ -22,6 +25,24 @@ export default function Home() {
       title: `${t("links.orders")}`,
     },
   ];
+
+  useEffect(() => {
+    if (signin_success === "true") {
+      toast.success(`${t("message.signin-success")}`);
+    }
+  }, [signin_success]);
+
+  useEffect(() => {
+    if (signout_success === "true") {
+      toast.success(`${t("message.signout-success")}`);
+    }
+  }, [signout_success]);
+
+  useEffect(() => {
+    if (order_placed === "true") {
+      toast.success(`${t("message.order-placed")}`);
+    }
+  }, [order_placed]);
 
   return (
     <HomeLayout>

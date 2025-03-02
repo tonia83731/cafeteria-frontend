@@ -1,6 +1,7 @@
 import { paymentOpts, shippingOpts } from "@/data/status-option";
 import {
   removeCouponStatus,
+  resetCartInfo,
   updatedCouponChange,
   updatedCouponStatus,
   updatedPaymentInfo,
@@ -15,12 +16,22 @@ import { clientFetch } from "@/lib/client-fetch";
 
 const CartPaymentInfo = () => {
   const t = useTranslations("Cart");
-  const { locale, query } = useRouter();
+  const { locale, query, push } = useRouter();
   const { account } = query;
   const [validationErr, setValidationErr] = useState("");
   const dispatch = useDispatch();
-  const { price, couponAvailable, discount, discountCode, shipping, payment } =
-    useSelector((state: RootState) => state.order);
+  const {
+    price,
+    couponAvailable,
+    discount,
+    discountCode,
+    discountId,
+    shipping,
+    payment,
+    recipientName,
+    recipientPhone,
+    recipientAddress,
+  } = useSelector((state: RootState) => state.order);
 
   const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -61,6 +72,39 @@ const CartPaymentInfo = () => {
   };
   const handleCouponRemove = () => {
     dispatch(removeCouponStatus());
+  };
+
+  const handlePlacedOrder = async () => {
+    const body = {
+      recipientName,
+      recipientPhone,
+      recipientAddress,
+      shipping,
+      payment,
+      discountId,
+      discountPrice: discount,
+      tax: price.taxPrice,
+      productPrice: price.productPrice,
+    };
+
+    try {
+      const response = await clientFetch(
+        `/orders/${account}/placed-order`,
+        "POST",
+        true,
+        body
+      );
+
+      if (response?.success) {
+        dispatch(resetCartInfo());
+        push({
+          pathname: "/",
+          query: { order_placed: "true" },
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -174,7 +218,10 @@ const CartPaymentInfo = () => {
         </div>
       </div>
       <div className="w-full flex justify-end pb-2 md:pb-4 pr-2 md:pr-4">
-        <button className="bg-apricot text-white h-8 px-4 rounded-md">
+        <button
+          onClick={handlePlacedOrder}
+          className="bg-apricot text-white h-8 px-4 rounded-md"
+        >
           {t("button.submit")}
         </button>
       </div>

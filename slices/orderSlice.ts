@@ -164,6 +164,25 @@ const orderSlice = createSlice({
       const { count } = actions.payload;
       state.cartTotalQty = count;
     },
+    resetCartInfo(state) {
+      state.cartLists = [];
+      state.cartTotalQty = 0;
+      state.price.productPrice = 0;
+      state.price.taxPrice = 0;
+      state.price.totalPrice = 0;
+      state.shipping = 0;
+      state.payment = 0;
+      state.couponAvailable = null;
+      state.discountId = null;
+      state.discountCode = "";
+      state.discountType = null;
+      state.discountValue = 0;
+      state.discount = 0;
+      state.recipientName = "";
+      state.recipientPhone = "";
+      state.recipientAddress = "";
+      state.syncChecked = false;
+    },
   },
 });
 
@@ -178,5 +197,6 @@ export const {
   updatedPaymentInfo,
   getCartLists,
   getQtyCount,
+  resetCartInfo,
 } = orderSlice.actions;
 export default orderSlice.reducer;

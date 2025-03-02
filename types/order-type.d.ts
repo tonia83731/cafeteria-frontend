@@ -16,6 +16,9 @@ export type OrderProps = {
     discountType: number;
     discountValue: number;
   };
+  discountPrice: number;
+  tax: number;
+  productPrice: number;
   itemCount: number;
   createdAt: string;
   updatedAt: string;
