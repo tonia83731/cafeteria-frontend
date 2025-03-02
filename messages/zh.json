@@ -164,7 +164,10 @@
             "address": "地址",
             "account": "帳號",
             "password": "密碼"
-        }
+        },
+        "no-coupon-item": "目前沒有優惠券",
+        "no-order":"目前沒有訂單,",
+        "buy-now": "前往購買"
     },
     "Wish": {
         "title": "我的最愛",
@@ -172,7 +175,9 @@
         "message": {
             "removed-wish-failed": "產品移除最愛清單失敗",
             "removed-wish-success": "產品移除最愛清單成功"
-        }
+        },
+        "no-item": "目前購物車沒有商品，",
+        "buy-now": "前往產品列表"
     },
     "Cart": {
         "title": "購物車",
@@ -228,12 +233,17 @@
             "delete-error": "刪除失敗",
             "delete-success": "刪除成功",
             "edit-error": "修改失敗",
-            "edit-success": "修改成功"
+            "edit-success": "修改成功",
+            "unavailable": "優惠券無效"
         },
         "custom": {
             "size-title": "尺寸選擇",
             "ice-title": "冰塊選擇",
             "sugar-title": "甜度選擇"
-        }
+        },
+        "select-shipping": "選擇運送方式",
+        "select-payment": "選擇付款方式",
+        "no-item": "目前購物車沒有商品，",
+        "buy-now": "前往購買"
     }
 }

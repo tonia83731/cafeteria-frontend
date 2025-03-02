@@ -9,16 +9,15 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCartLists,
   getOrderersInfo,
-  getQtyCount,
   updatedOrderPrice,
 } from "@/slices/orderSlice";
 import { ShippingProps } from "@/types/custom-type";
 import { UserProfileType } from "@/types/user-auth.type";
 import { RootState } from "@/store";
-import { useRouter } from "next/router";
 import { authFetch } from "@/lib/server-fetch";
 import CartUserInfo from "@/components/cart-page/CartUserInfo";
 import CartPaymentInfo from "@/components/cart-page/CartPaymentInfo";
+import Link from "next/link";
 
 interface CartPageData {
   userInfo: UserProfileType | null;
@@ -31,39 +30,8 @@ interface CartPageData {
 
 const CartPage = ({ userInfo, cartItem, total }: CartPageData) => {
   const t = useTranslations("Cart");
-  const { query } = useRouter();
-  const { account } = query;
   const dispatch = useDispatch();
   const { cartLists, price } = useSelector((state: RootState) => state.order);
-
-  const handleProductDelete = async (productId: number) => {
-    // try {
-    //   const response = await clientFetch(`/carts/${user_id}/${id}`, {
-    //     method: "DELETE",
-    //     token,
-    //   });
-    //   if (!response.success) {
-    //     toast.error(t("message.delete-error"));
-    //     return;
-    //   }
-    //   const updated_cart_items = cartLists.filter((item) => item.id !== id);
-    //   const updated_count = updated_cart_items.reduce(
-    //     (acc, curr) => acc + curr.quantity,
-    //     0
-    //   );
-    //   const total = updated_cart_items.reduce(
-    //     (acc, curr) => acc + curr.total,
-    //     0
-    //   );
-    //   dispatch(
-    //     getCartLists({ data: updated_cart_items, count: updated_count })
-    //   );
-    //   dispatch(updatedOrderPrice({ name: "productPrice", value: total }));
-    //   toast.success(t("message.delete-success"));
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  };
 
   useEffect(() => {
     dispatch(getCartLists({ data: cartItem }));
@@ -82,21 +50,32 @@ const CartPage = ({ userInfo, cartItem, total }: CartPageData) => {
 
   return (
     <FrontLayout title={`${t("title")}`}>
-      <div className="flex flex-col gap-4">
-        {cartLists.map((items: CartItemProps) => {
-          return (
-            <CartItems
-              {...items}
-              key={`cartitems-${items.id}`}
-              onProductDelete={handleProductDelete}
-            />
-          );
-        })}
-      </div>
-      {/* Personal Info */}
-      <CartUserInfo />
-      {/* Payment Info */}
-      <CartPaymentInfo />
+      {cartLists.length <= 0 ? (
+        <div className="w-full text-fern-60">
+          {t("no-item")}&nbsp;
+          <span className="underline underline-offset-2">
+            <Link href="/menu">{t("buy-now")}</Link>
+          </span>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-4 h-full max-h-[520px] overflow-y-auto modal">
+            {cartLists.map((items: CartItemProps) => {
+              return (
+                <CartItems
+                  {...items}
+                  item_price={items.price}
+                  key={`cartitems-${items.id}`}
+                />
+              );
+            })}
+          </div>
+          {/* Personal Info */}
+          <CartUserInfo />
+          {/* Payment Info */}
+          <CartPaymentInfo />
+        </>
+      )}
     </FrontLayout>
   );
 };

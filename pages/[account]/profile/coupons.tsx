@@ -5,6 +5,7 @@ import { CouponProps } from "@/types/coupon-type";
 import { authFetch } from "@/lib/server-fetch";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 
 export type FormatedCouponType = {
   id: number;
@@ -33,6 +34,7 @@ const ProfileCouponsPage = ({
     updatedAt: string;
   }[];
 }) => {
+  const t = useTranslations("Profile");
   const [couponDatas, setCouponDatas] = useState<FormatedCouponType[]>([]);
 
   useEffect(() => {
@@ -71,11 +73,15 @@ const ProfileCouponsPage = ({
   }, [coupons]);
   return (
     <ProfileLayout>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {couponDatas.map((coupon: FormatedCouponType) => {
-          return <ProfileCoupon {...coupon} key={coupon.id} />;
-        })}
-      </div>
+      {couponDatas.length <= 0 ? (
+        <div className="w-full text-fern-60">{t("no-coupon-item")}</div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {couponDatas.map((coupon: FormatedCouponType) => {
+            return <ProfileCoupon {...coupon} key={coupon.id} />;
+          })}
+        </div>
+      )}
     </ProfileLayout>
   );
 };

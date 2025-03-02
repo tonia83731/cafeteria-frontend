@@ -11,6 +11,7 @@ import Head from "next/head";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const { locale } = router.query;
   return (
     <NextIntlClientProvider
       locale={router.locale}
@@ -20,6 +21,16 @@ export default function App({ Component, pageProps }: AppProps) {
       <Provider store={store}>
         <Head>
           <title>THE CAFE</title>
+          <meta property="og:title" content="THE CAFE" key="title" />
+          <meta
+            property="og:description"
+            content={
+              locale === "en"
+                ? "Relax and Refresh. Sip Serenity at Our Tea and Coffee Haven"
+                : "放鬆身心，煥然一新。 在我們的茶與咖啡天堂品味寧靜"
+            }
+            key="title"
+          />
         </Head>
         <Component {...pageProps} />
       </Provider>

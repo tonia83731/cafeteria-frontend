@@ -1,5 +1,4 @@
 import { CartItemProps } from "@/types/cart-type";
-import { DefaultOptionType } from "@/types/default-input";
 import { UserProfileType } from "@/types/user-auth.type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -12,11 +11,14 @@ interface OrderState {
     totalPrice: number;
   };
 
-  shipping: DefaultOptionType | null;
-  payment: DefaultOptionType | null;
+  shipping: number;
+  payment: number;
   couponAvailable: null | boolean;
+  discountId: null | number;
   discountCode: string;
-  discount: 0;
+  discountType: number | null;
+  discountValue: number;
+  discount: number;
 
   orderersInfo: UserProfileType | null;
   recipientName: string;
@@ -34,10 +36,13 @@ const initialState: OrderState = {
     taxPrice: 0,
     totalPrice: 0,
   },
-  shipping: null,
-  payment: null,
+  shipping: 0,
+  payment: 0,
   couponAvailable: null,
+  discountId: null,
   discountCode: "",
+  discountType: null,
+  discountValue: 0,
   discount: 0,
 
   orderersInfo: null,
@@ -78,9 +83,68 @@ const orderSlice = createSlice({
       const { name, value } = actions.payload;
       state[name] = value;
     },
-    updatedCouponStatus(state, actions) {
-      const { status } = actions.payload;
+    updatedCouponChange(
+      state,
+      actions: PayloadAction<{
+        value: string;
+      }>
+    ) {
+      const { value } = actions.payload;
+      state.discountCode = value;
+    },
+    updatedCouponStatus(
+      state,
+      actions: PayloadAction<{
+        status: boolean;
+        coupon: {
+          discountId: number;
+          discountCode: string;
+          discountType: number;
+          discountValue: number;
+        } | null;
+      }>
+    ) {
+      const { status, coupon } = actions.payload;
       state.couponAvailable = status;
+      if (status && coupon) {
+        const { discountId, discountCode, discountType, discountValue } =
+          coupon;
+        state.discountId = discountId;
+        state.discountCode = discountCode;
+        state.discountType = discountType;
+        state.discountValue = discountValue;
+
+        let discount = 0;
+
+        if (discountType === 1) {
+          discount = discountValue;
+        } else {
+          discount = state.price.productPrice * (discountValue / 100);
+        }
+        state.discount = discount;
+        state.price.totalPrice -= discount;
+      }
+    },
+    removeCouponStatus(state) {
+      if (!state.couponAvailable) return;
+      if (state.couponAvailable) {
+        state.couponAvailable = false;
+        state.discountId = null;
+        state.discountType = null;
+        state.discountValue = 0;
+        state.price.totalPrice += state.discount;
+        state.discount = 0;
+      }
+    },
+    updatedPaymentInfo(
+      state,
+      actions: PayloadAction<{
+        name: "shipping" | "payment";
+        value: string;
+      }>
+    ) {
+      const { name, value } = actions.payload;
+      state[name] = Number(value);
     },
     updatedOrderPrice(
       state,
@@ -104,11 +168,14 @@ const orderSlice = createSlice({
 });
 
 export const {
+  updatedCouponChange,
   updatedCouponStatus,
+  removeCouponStatus,
   updatedOrderPrice,
   getOrderersInfo,
   updatedRecipientInfo,
   updatedSyncChecked,
+  updatedPaymentInfo,
   getCartLists,
   getQtyCount,
 } = orderSlice.actions;

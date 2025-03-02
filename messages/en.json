@@ -163,7 +163,10 @@
             "address": "Address",
             "account": "Account",
             "password": "Password"
-        }
+        },
+        "no-coupon-item": "No coupons available at the moment",
+        "no-order": "No orders at the moment",  
+        "buy-now": "Buy now"
     },
     "Wish": {
         "title": "Wish",
@@ -171,7 +174,9 @@
         "message": {
             "removed-wish-failed": "Product removed to wish failed",
             "removed-wish-success": "Product removed to wish success"
-        }
+        },
+        "no-item": "Your cart is currently empty.",
+        "buy-now": "Go to Menu."
     },
     "Cart": {
         "title": "Cart",
@@ -227,13 +232,18 @@
             "delete-error": "Cart item delete failed",
             "delete-success": "Cart item deleted",
             "edit-error": "Cart item edit failed",
-            "edit-success": "Cart item edit success"
+            "edit-success": "Cart item edit success",
+            "unavailable": "Coupon unavailable"
         },
         "custom": {
             "size-title": "Size Options",
             "ice-title": "Ice Options",
             "sugar-title": "Sigar Options"
-        }
+        },
+        "select-shipping": "Select shipping",
+        "select-payment": "Select payment",
+        "no-item": "Your cart is currently empty.",
+        "buy-now": "Go to shop."
     }
     
 }

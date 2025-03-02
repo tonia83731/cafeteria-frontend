@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslations } from "next-intl";
-import { getCookie } from "cookies-next";
-import { toast } from "react-toastify";
-import { clientFetch } from "@/lib/fetch";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import QuantityBox from "../input/QuantityBox";
 import { CartItemProps } from "@/types/cart-type";
-import { LangOptionType } from "@/types/custom-type";
-import { getCartLists, updatedOrderPrice } from "@/slices/orderSlice";
+import {
+  getCartLists,
+  getQtyCount,
+  updatedOrderPrice,
+} from "@/slices/orderSlice";
 import { sizeOpts, iceOpts, sugarOpts } from "@/data/product-options";
+import { clientFetch } from "@/lib/client-fetch";
 
 const CartItems = ({
   id,
@@ -22,18 +23,16 @@ const CartItems = ({
   sugar,
   ice,
   quantity,
-  price,
-  onProductDelete,
+  item_price,
 }: CartItemProps & {
-  onProductDelete: (id: number) => void;
+  item_price: number;
 }) => {
   const t = useTranslations("Cart");
-  const token = getCookie("authToken");
   const dispatch = useDispatch();
   const { locale, query } = useRouter();
   const { account } = query;
 
-  const { cartLists, cartTotalQty } = useSelector(
+  const { cartLists, cartTotalQty, price } = useSelector(
     (state: RootState) => state.order
   );
 
@@ -45,73 +44,114 @@ const CartItems = ({
     size: size,
     ice: ice,
     sugar: sugar,
-    total: price,
+    total: item_price,
   });
 
   const [editToggle, setEditToggle] = useState(false);
 
-  const handleUpdatedQuantity = async (type: "plus" | "minus") => {
-    // const updated_qty =
-    //   type === "plus" ? customOptions.quantity + 1 : customOptions.quantity - 1;
-    // const updated_total = product.price * updated_qty;
-    // try {
-    //   const response = await clientFetch(`/carts/${user_id}/${id}/quantity`, {
-    //     method: "PATCH",
-    //     token,
-    //     body: {
-    //       quantity: updated_qty,
-    //       total: updated_total,
-    //     },
-    //   });
-    //   if (!response.success) return;
-    //   setCustomOptions((prev) => ({
-    //     ...prev,
-    //     quantity: updated_qty,
-    //     total: updated_total,
-    //   }));
-    //   const updated_cartlist = cartLists.map((item) =>
-    //     item.id === id
-    //       ? { ...item, quantity: updated_qty, total: updated_total }
-    //       : item
-    //   );
-    //   const count = type === "plus" ? cartTotalQty + 1 : cartTotalQty - 1;
-    //   const totalPrice = updated_cartlist.reduce(
-    //     (accu, curr) => accu + curr.total,
-    //     0
-    //   );
-    //   dispatch(getCartLists({ data: updated_cartlist, count }));
-    //   dispatch(updatedOrderPrice({ name: "productPrice", value: totalPrice }));
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  const handleProductDelete = async () => {
+    try {
+      const response = await clientFetch(
+        `/carts/${account}/${id}/delete-cart-item`,
+        "DELETE",
+        true
+      );
+
+      if (response?.success) {
+        dispatch(
+          getQtyCount({
+            count: cartTotalQty - customOptions.quantity,
+          })
+        );
+        const updated_cartlists = cartLists.filter((cart) => cart.id !== id);
+        const updated_product_prices = updated_cartlists.reduce(
+          (acc, curr) => (acc += curr.price),
+          0
+        );
+        dispatch(
+          updatedOrderPrice({
+            name: "productPrice",
+            value: updated_product_prices,
+          })
+        );
+        dispatch(getCartLists({ data: updated_cartlists }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleProductEdit = async (cartItemId: number, body: any) => {
-    // try {
-    //   const response = await clientFetch(
-    //     `/carts/${user_id}/${cartItemId}/custom`,
-    //     {
-    //       method: "PATCH",
-    //       token,
-    //       body,
-    //     }
-    //   );
-    //   if (!response.success) {
-    //     toast.error(t("message.edit-error"));
-    //     return;
-    //   }
-    //   const updatedProduct = response.data;
-    //   const updatedCart = cartLists.map((item) =>
-    //     item.id === cartItemId ? { ...item, ...updatedProduct } : item
-    //   );
-    //   const totalPrice = updatedCart.reduce((acc, curr) => acc + curr.total, 0);
-    //   dispatch(getCartLists({ data: updatedCart }));
-    //   dispatch(updatedOrderPrice({ name: "productPrice", value: totalPrice }));
-    //   toast.success(t("message.edit-success"));
-    //   setEditToggle(false);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  const handleUpdatedQuantity = async (type: "plus" | "minus") => {
+    const updated_qty =
+      type === "plus" ? customOptions.quantity + 1 : customOptions.quantity - 1;
+    const curr_product_price = has_opts
+      ? product_price + sizeOpts[customOptions.size as number].price
+      : product_price;
+    const updated_total = curr_product_price * updated_qty;
+
+    try {
+      const response = await clientFetch(
+        `/carts/${account}/${id}/updated-cart-item-quantity`,
+        "PATCH",
+        true,
+        {
+          quantity: updated_qty,
+        }
+      );
+
+      if (response?.success) {
+        setCustomOptions((prev) => ({
+          ...prev,
+          quantity: updated_qty,
+          total: updated_total,
+        }));
+
+        // 更新 購物車 數量
+        dispatch(
+          getQtyCount({
+            count: type === "plus" ? cartTotalQty + 1 : cartTotalQty - 1,
+          })
+        );
+        // 更新 產品 & 總價
+        const updated_cartlists = cartLists.map((cart) => {
+          return cart.id === id
+            ? { ...cart, quantity: updated_qty, price: updated_total }
+            : cart;
+        });
+        const updated_product_prices = updated_cartlists.reduce(
+          (acc, curr) => (acc += curr.price),
+          0
+        );
+        dispatch(
+          updatedOrderPrice({
+            name: "productPrice",
+            value: updated_product_prices,
+          })
+        );
+        dispatch(getCartLists({ data: updated_cartlists }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleProductEdit = async () => {
+    if (!has_opts) return;
+
+    const body = {
+      size: customOptions.size,
+      ice: customOptions.ice,
+      sugar: customOptions.sugar,
+    };
+    // see if price are the same
+    const curr_product_price = product_price + sizeOpts[size as number].price;
+    const updated_product_price =
+      product_price + sizeOpts[customOptions.size as number].price;
+    const isSamePrice = curr_product_price === updated_product_price;
+
+    const productPrice = price.productPrice;
+    // cartItemId ===> id
+    console.log(body, isSamePrice, productPrice);
   };
 
   const handleEditCancel = () => {
@@ -120,27 +160,10 @@ const CartItems = ({
       size,
       sugar,
       ice,
-      total: price,
+      total: item_price,
     });
     setEditToggle(false);
   };
-
-  // useEffect(() => {
-  //   const sizePrice =
-  //     sizesOptions.find((item) => item.id === customOptions.sizeId)?.price || 0;
-  //   const basePrice = product.price || 0;
-
-  //   const newTotal = (basePrice + sizePrice) * customOptions.quantity;
-  //   setCustomOptions((prev) => ({
-  //     ...prev,
-  //     total: newTotal,
-  //   }));
-  // }, [
-  //   customOptions.quantity,
-  //   customOptions.sizeId,
-  //   sizesOptions,
-  //   product.price,
-  // ]);
 
   return (
     <div>
@@ -154,7 +177,8 @@ const CartItems = ({
             {locale === "en" ? title_en : title}
           </h5>
           <div className="text-apricot font-bold text-lg md:text-xl">
-            ${customOptions.total}
+            ${customOptions.total}{" "}
+            <span className="text-sm text-natural">(${product_price})</span>
           </div>
         </div>
         {has_opts && (
@@ -207,7 +231,7 @@ const CartItems = ({
               </button>
             )}
             <button
-              onClick={() => onProductDelete(id)}
+              onClick={handleProductDelete}
               className={`bg-moss-60 w-full rounded-lg hover:drop-shadow-lg py-1 ${
                 !has_opts && "col-start-2"
               }`}
@@ -313,7 +337,7 @@ const CartItems = ({
           <div className="w-full flex justify-end">
             <div className="w-full md:w-1/3 text-white grid grid-cols-2 gap-2">
               <button
-                onClick={() => handleProductEdit(id, customOptions)}
+                onClick={handleProductEdit}
                 disabled={
                   customOptions.size === size &&
                   customOptions.sugar === sugar &&

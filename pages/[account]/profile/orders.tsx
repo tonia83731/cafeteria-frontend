@@ -8,6 +8,7 @@ import { OrderProps } from "@/types/order-type";
 import { authFetch } from "@/lib/server-fetch";
 import { statusOpts } from "@/data/status-option";
 import { clientFetch } from "@/lib/client-fetch";
+import Link from "next/link";
 
 const ProfileOrdersPage = ({
   orders,
@@ -88,25 +89,34 @@ const ProfileOrdersPage = ({
           );
         })}
       </div>
-      <div className="flex flex-col gap-6">
-        <div className="grid grid-cols-[2fr_2fr_1fr] md:grid-cols-[2fr_2fr_1fr_1fr] bg-moss-60 text-fern font-bold text-sm md:text-base text-center h-6 leading-6 md:h-9 md:leading-9 rounded-sm">
-          <div>{t("table.header.status")}</div>
-          <div>{t("table.header.price")}</div>
-          <div>{t("table.header.shipping")}</div>
-          <div className="hidden md:block">{t("table.header.payment")}</div>
+      {userOrders.length <= 0 ? (
+        <div className="w-full text-fern-60">
+          {t("no-order")}&nbsp;
+          <span className="underline underline-offset-2">
+            <Link href="/menu">{t("buy-now")}</Link>
+          </span>
         </div>
-        <div className="flex flex-col gap-4">
-          {userOrders.map((order: any) => {
-            return (
-              <ProfileOrder
-                {...order}
-                key={order.id}
-                onOrderCancel={handleOrderCancel}
-              />
-            );
-          })}
+      ) : (
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-[2fr_2fr_1fr] md:grid-cols-[2fr_2fr_1fr_1fr] bg-moss-60 text-fern font-bold text-sm md:text-base text-center h-6 leading-6 md:h-9 md:leading-9 rounded-sm">
+            <div>{t("table.header.status")}</div>
+            <div>{t("table.header.price")}</div>
+            <div>{t("table.header.shipping")}</div>
+            <div className="hidden md:block">{t("table.header.payment")}</div>
+          </div>
+          <div className="flex flex-col gap-4">
+            {userOrders.map((order: any) => {
+              return (
+                <ProfileOrder
+                  {...order}
+                  key={order.id}
+                  onOrderCancel={handleOrderCancel}
+                />
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </ProfileLayout>
   );
 };

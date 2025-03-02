@@ -7,6 +7,7 @@ import WishProduct from "@/components/wish-page/WishProduct";
 import { WishProductProps } from "@/types/menu-type";
 import { authFetch } from "@/lib/server-fetch";
 import { clientFetch } from "@/lib/client-fetch";
+import Link from "next/link";
 
 interface WishPageData {
   wishes: WishProductProps[];
@@ -39,18 +40,27 @@ const WishPage = ({ wishes }: WishPageData) => {
   };
   return (
     <FrontLayout title={`${t("title")}`}>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {wishProducts.map((wish, index) => {
-          return (
-            <WishProduct
-              {...wish}
-              key={`wishproduct-${index}`}
-              locale={locale as string}
-              onWishClick={handleWishRemove}
-            />
-          );
-        })}
-      </div>
+      {wishProducts.length <= 0 ? (
+        <div className="w-full text-fern-60">
+          {t("no-item")}&nbsp;
+          <span className="underline underline-offset-2">
+            <Link href="/menu">{t("buy-now")}</Link>
+          </span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {wishProducts.map((wish, index) => {
+            return (
+              <WishProduct
+                {...wish}
+                key={`wishproduct-${index}`}
+                locale={locale as string}
+                onWishClick={handleWishRemove}
+              />
+            );
+          })}
+        </div>
+      )}
     </FrontLayout>
   );
 };
