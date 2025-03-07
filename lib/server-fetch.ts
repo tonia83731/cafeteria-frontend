@@ -20,7 +20,7 @@ export const authFetch = async (
     throw new Error("Authentication token is missing or expired.");
   }
 
-  const response = await fetch(`${process.env.API_URL}/api${url}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${url}`, {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -43,7 +43,7 @@ export const serverFetch = async (
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
   body?: any
 ) => {
-  const response = await fetch(`${process.env.API_URL}/api${url}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${url}`, {
     method,
     headers: {
       "content-type": "application/json",

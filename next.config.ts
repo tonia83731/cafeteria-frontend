@@ -15,16 +15,7 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    // domains: ["i.imgur.com"],
   },
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: "/:path*",
-  //       destination: `${process.env.API_URL}/api/:path*`,
-  //     },
-  //   ];
-  // },
 };
 
 export default nextConfig;

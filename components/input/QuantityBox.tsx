@@ -1,6 +1,6 @@
 import { FaPlus } from "react-icons/fa";
 import { FaMinus } from "react-icons/fa6";
-import { QuantityBoxProps } from "@/types/input-type";
+import { QuantityBoxProps } from "@/types/default-input";
 
 const QuantityBox = ({ quantity, onQuantityClick }: QuantityBoxProps) => {
   return (
