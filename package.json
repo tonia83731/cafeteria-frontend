@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "dotenv -e .env.dev next dev",
-    "dev:prod": "dontenv -e .env.prod next dev",
+    "dev:prod": "dotenv -e .env.prod next dev",
     "build": "next build",
     "build:dev": "dotenv -e .env.dev next build",
     "build:prod": "dotenv -e .env.prod next build",

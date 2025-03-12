@@ -26,7 +26,7 @@ interface AboutProps {
 
 const AboutPage = ({ comments }: AboutProps) => {
   const t = useTranslations("About");
-  console.log(comments);
+  // console.log(comments);
   const settings = {
     dots: false,
     infinite: true,

@@ -223,7 +223,7 @@ const MenuProduct = ({
                       key={`ice-${value}`}
                     >
                       <input
-                        id={`ice-${id}`}
+                        id={`ice-${value}`}
                         type="radio"
                         className="hidden"
                         name="drinks-size"
